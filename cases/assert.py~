@@ -1,7 +1,0 @@
-class PrintQueueList:
-   ...
-   def add(self, new_queue):
-       assert new_queue not in self._list, \
-         "%r is already in %r" % (self, new_queue)
-       assert isinstance(new_queue, PrintQueue), \
-            "%r is not a print queue" % new_queue

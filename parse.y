@@ -9,10 +9,6 @@
 	void yyerror (const char *);
         // extern YYSTYPE yylval;
         void deleteName(char *name);
-        int funcIndent = 0;
-        std::vector<std::string> classStack;
-        bool isDecorated = false;
-        int loopIndent;
         PoolOfNodes& pool = PoolOfNodes::getInstance(); 
 %}
 
@@ -29,7 +25,6 @@
 
 %union {
   Node* node;
-  int complexity;
   int intNumber;
   float fltNumber;
   char *id;
@@ -49,17 +44,15 @@
 
 
 %token<id> NAME
-%type<complexity> funcdef decorated decorator decorators classdef suite
-%type<complexity> compound_stmt plus_stmt stmt for_stmt star_ELIF if_stmt while_stmt
-%type<complexity> opt_FINALLY try_stmt with_stmt opt_ELSE except_clause  plus_except
 %start start
 %locations
 
 %type<tokenId> pick_PLUS_MINUS pick_multop
 %type<node> arith_expr atom power factor term shift_expr and_expr xor_expr expr
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
-%type<node> pick_yield_expr_testlist testlist star_EQUAL expr_stmt
-%token<fltNumber> FLOATNUMBER
+%type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
+%type<node> stmt  print_stmt
+%token<fltNumber> FLOATNUMBER 
 %token<intNumber> INTNUMBER
 
 %%
@@ -78,6 +71,9 @@ file_input // Used in: start
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
+        {
+          std::cout << "NEWLINE -> pick_NEWLINE_stmt" << std::endl;
+        }
 	| stmt
         {
             std::cout << "stmt -> pick_NEWLINE_stmt" << std::endl;
@@ -85,16 +81,11 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
 	: star_NEWLINE_stmt pick_NEWLINE_stmt
-        {
-             std::cout <<  "star_NEWLINE_stmt pick_NEWLINE_stmt -> star_NEWLINE_stmt" << std::endl;
-        }
 	| %empty
 	;
 decorator // Used in: decorators
 	: AT dotted_name LPAR opt_arglist RPAR NEWLINE
-        {$$ = 0;}
 	| AT dotted_name NEWLINE
-        {$$ = 0;}
 	;
 opt_arglist // Used in: decorator, trailer
 	: arglist
@@ -102,46 +93,14 @@ opt_arglist // Used in: decorator, trailer
 	;
 decorators // Used in: decorators, decorated
 	: decorators decorator
-        {$$ = $1 + $2;}
 	| decorator
-        {$$ = $1;}
 	;
 decorated // Used in: compound_stmt
         : decorators classdef
-        {$$ = $1 + $2;}
-	| decorators  { isDecorated = true; } funcdef
-        {
-          $$ = $1 + $3;
-          isDecorated = false;
-        }
+	| decorators funcdef
 	;
 funcdef // Used in: decorated, compound_stmt
-        : DEF NAME parameters COLON {
-            funcIndent++;
-            } suite
-        {
-            // pop it self
-            funcIndent--;
-            // calculate its complexity
-            $$ = $6 + 1;
-            // judge print or not
-            std::stringstream ss;
-            ss << $2;
-            if (funcIndent == 0) { // 0 and empty means its a top level fun and should be printed
-                std::string className = "";
-                if (!classStack.empty()) {
-                  for (std::string &name : classStack) {
-                    className += name + ".";
-                  }
-                }
-                if (isDecorated)
-                  @1.first_line--;
-                std::cout << "(\"" << @1.first_line << ":" << @1.first_column - 1
-                      << ": \'" << className << ss.str() << "\'\", "
-                      << $$ <<  ")" << std::endl;
-            }
-             deleteName($2);
-        }
+        : DEF NAME parameters COLON  suite
 	;
 parameters // Used in: funcdef
 	: LPAR varargslist RPAR
@@ -198,21 +157,28 @@ star_fpdef_notest // Used in: fplist, star_fpdef_notest
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
 	: simple_stmt
          {
-             $$ = 0;
+             $$ = $1;
+	     //($$)->eval()->print();
              std::cout << "simple_stmt -> stmt" << std::endl;
          }
 	| compound_stmt
          {
-             $$ = $1;
+	     $$ = NULL;
              std::cout << "compound_stmt -> stmt" << std::endl;
          }
 	;
 simple_stmt // Used in: stmt, suite
 	: small_stmt star_SEMI_small_stmt SEMI NEWLINE
          {
+             $$ = $1;
              std::cout << "small_stmt star_SEMI_small_stmt SEMI NEWLINE -> simple_stmt" << std::endl;          }
 	| small_stmt star_SEMI_small_stmt NEWLINE
          {
+	     // print 
+	     $$ = $1;
+	     std::cout << "---------print3---------" << std::endl;
+	     ($$)->eval()->print();
+	     std::cout << "---------print3---------" << std::endl;
              std::cout << "small_stmt star_SEMI_small_stmt NEWLINE  -> simple_stmt" << std::endl;
          }
 	;
@@ -228,8 +194,17 @@ star_SEMI_small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	;
 small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	: expr_stmt
-        { std::cout << "expr_stmt -> small_stmt" << std::endl; }
+        {
+          $$ = $1;
+          std::cout << "expr_stmt -> small_stmt" << std::endl; 
+        }
 	| print_stmt
+        {
+          $$ = $1;
+	  std::cout << "---------print4---------" << std::endl;
+	  ($$)->eval()->print();
+	  std::cout << "---------print4---------" << std::endl;
+        }
 	| del_stmt
 	| pass_stmt
 	| flow_stmt
@@ -241,16 +216,32 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist
         {
+            if ($3 == NULL) {
+	      $$ = $1;
+            }
+            else {
+              $$ = new AsgBinaryNode($1, $3); 
+              pool.add($$);
+	    }
             std::cout << "testlist augassign pick_yield_expr_testlist -> expr_stmt" << std::endl;
         }
 	| testlist star_EQUAL
         {
-            $$ = new AsgBinaryNode($1, $2);
+            std::cout << "---------print---------" << std::endl;
+	    if ($2 == NULL)
+	      $$ = $1;
+            else {
+              $$ = new AsgBinaryNode($1, $2); 
+              pool.add($$);
+	    }
             std::cout << "testlist star_EQUAL -> expr_stmt" << std::endl;
         }
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 	: yield_expr
+        {
+	    $$ = NULL;
+        }
 	| testlist
         {
             $$ = $1;
@@ -260,8 +251,14 @@ pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 star_EQUAL // Used in: expr_stmt, star_EQUAL
 	: star_EQUAL EQUAL pick_yield_expr_testlist
         {
-            $$ = new AsgBinaryNode($1, $3);
-            std::cout << "star_EQUAL EQUAL pick_yield_expr_testlist -> star_EQUAL" << std::endl;   }
+          if ($1 == NULL) {
+	    $$ = $3;
+          } else {
+	      $$ = new AsgBinaryNode($1, $3);
+	      pool.add($$);
+          }
+            std::cout << "star_EQUAL EQUAL pick_yield_expr_testlist -> star_EQUAL" << std::endl;  
+        }
 	| %empty
         {
             $$ = NULL;
@@ -284,7 +281,14 @@ augassign // Used in: expr_stmt
 	;
 print_stmt // Used in: small_stmt
 	: PRINT opt_test
+        {
+	  std::cout << "PRINT opt_test -> print_stmt" << std::endl; 
+        }
 	| PRINT RIGHTSHIFT test opt_test_2
+        {
+	  $$ = $3;
+          std::cout << "PRINT RIGHTSHIFT test opt_test_2 -> print_stmt" << std::endl;
+        }
 	;
 star_COMMA_test // Used in: star_COMMA_test, opt_test, listmaker, testlist_comp, testlist, pick_for_test
 	: star_COMMA_test COMMA test
@@ -422,103 +426,49 @@ assert_stmt // Used in: small_stmt
 	;
 compound_stmt // Used in: stmt
 	: if_stmt
-        {$$ = $1;}
 	| while_stmt
-         {$$ = $1;}
 	| for_stmt
-         {$$ = $1;}
 	| try_stmt
-         {$$ = $1;}
 	| with_stmt
-         {$$ = $1;}
 	| funcdef
-         {$$ = $1;}
 	| classdef
-         {$$ = $1;}
 	| decorated
-         {$$ = $1;}
 	;
 if_stmt // Used in: compound_stmt
-: IF test COLON suite star_ELIF ELSE COLON suite
-        {
-          $$ = 1 + $4 + $5 + $8;
-          if (@1.first_column == 1) {
-            std::cout << "(\'If " << @1.first_line << "\', " << $$ + 1<< ")" << std::endl;
-          }
-        }
+        : IF test COLON suite star_ELIF ELSE COLON suite
 	| IF test COLON suite star_ELIF
-        {
-           $$ = 1 + $4 + $5;
-           if (@1.first_column == 1 ) {
-             std::cout << "(\'If " <<@1.first_line << "\', " << $$ + 1 << ")" << std::endl;
-          }
-        }
 	;
 star_ELIF // Used in: if_stmt, star_ELIF
 	: star_ELIF ELIF test COLON suite
-        { $$ = $1 + 1 + $5; }
 	| %empty
-        { $$ = 0; }
 	;
 while_stmt // Used in: compound_stmt
 	: WHILE test COLON suite ELSE COLON suite
-        {$$ = 1 + $4 + $7;}
 	| WHILE test COLON suite
-        { $$ = 1 + $4; }
 	;
 for_stmt // Used in: compound_stmt
-: FOR exprlist IN testlist COLON suite ELSE COLON suite
-        {
-          loopIndent--;
-          $$ = 1 + $6 + $9;
-          if (@1.first_column == 1 || (funcIndent == 0 && !classStack.empty() && loopIndent == 0)) {
-            std::cout << "(\'Loop " << @1.first_line << "\', " << $$ + 1 << ")" << std::endl;
-          }
-        }
+        : FOR exprlist IN testlist COLON suite ELSE COLON suite
 	| FOR exprlist IN testlist COLON suite
-        {
-          loopIndent--;
-          $$ = 1 + $6;
-          if (@1.first_column == 1 || (funcIndent == 0 && !classStack.empty() && loopIndent == 0 )) {
-            std::cout << "(\'Loop " << @1.first_line << "\', " << $$ + 1 << ")" << std::endl;
-          }
-        }
+       
         ;
 try_stmt // Used in: compound_stmt
 	: TRY COLON suite plus_except opt_ELSE opt_FINALLY
-        {
-          if ($6 == 1)
-            $$ = 0;
-          else
-            $$ = 1 + $3 + $4 + $5;
-          if (@1.first_column == 1)
-            std::cout << "(\'TryExcept " << @1.first_line << "\', " << $$ + 1 << ")" << std::endl;
-        }
 	| TRY COLON suite FINALLY COLON suite
-        {$$ = 0;}
 	;
 plus_except // Used in: try_stmt, plus_except
 	: plus_except except_clause COLON suite
-        { $$ = $1 + $2 + $4; }
 	| except_clause COLON suite
-        { $$ = $1 + $3; }
 	;
 opt_ELSE // Used in: try_stmt
 	: ELSE COLON suite
-        {$$ = $3;}
 	| %empty
-        {$$ = 0;}
 	;
 opt_FINALLY // Used in: try_stmt
 	: FINALLY COLON suite
-        {$$ = 1;}
 	| %empty
-        {$$ = 0;}
 	;
 with_stmt // Used in: compound_stmt
 : WITH  with_item star_COMMA_with_item COLON suite
-        { $$ = $5;
-        }
 	;
 star_COMMA_with_item // Used in: with_stmt, star_COMMA_with_item
 	: star_COMMA_with_item COMMA with_item
@@ -530,9 +480,7 @@ with_item // Used in: with_stmt, star_COMMA_with_item
 	;
 except_clause // Used in: plus_except
 	: EXCEPT test opt_AS_COMMA
-        {$$ = 1;}
 	| EXCEPT
-        {$$ = 1;}
 	;
 pick_AS_COMMA // Used in: opt_AS_COMMA
 	: AS
@@ -544,21 +492,13 @@ opt_AS_COMMA // Used in: except_clause
 	;
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
 	: simple_stmt
-        {$$ = 0;}
+	{ std::cout << "simple_stmt -> suite" << std::endl; }
 	| NEWLINE INDENT plus_stmt DEDENT
-        {$$ = $3;}
+        { std::cout << "NEWLINE INDENT plus_stmt DEDENT -> suite" << std::endl; }
 	;
 plus_stmt // Used in: suite, plus_stmt
 	: plus_stmt stmt
-        {
-            $$ = $1 + $2;
-            std::cout << "plus_stmt stmt -> plus_stmt" << std::endl;
-        }
 	| stmt
-        {
-            $$ = $1;
-            std::cout << "stmt -> plus_stmt" << std::endl;
-        }
 	;
 testlist_safe // Used in: list_for
 	: old_test plus_COMMA_old_test opt_COMMA
@@ -582,6 +522,7 @@ test // Used in: opt_EQUAL_test, print_stmt, star_COMMA_test, opt_test, plus_COM
             $$ = $1;
             std::cout << "or_test opt_IF_ELSE -> test" << std::endl; }
 	| lambdef
+	{ $$ = NULL;} 
 	;
 opt_IF_ELSE // Used in: test
 	: IF or_test ELSE test
@@ -608,11 +549,13 @@ and_test // Used in: or_test, and_test
 not_test // Used in: and_test, not_test
 	: NOT not_test
          {
-             $$ = $2;
              std::cout << "NOT not_test -> not_test" << std::endl;
          }
 	| comparison
-         { std::cout << "comparison -> not_test" << std::endl; }
+         {
+            $$ = $1;   
+            std::cout << "comparison -> not_test" << std::endl; 
+         }
 	;
 comparison // Used in: not_test, comparison
 	: expr
@@ -639,9 +582,11 @@ comp_op // Used in: comparison
 expr // Used in: exec_stmt, with_item, comparison, expr, exprlist, star_COMMA_expr
 	: xor_expr
         {
+	    std::cout << "---------print----1-----" << std::endl;
+	    //($$)->eval()->print();
+	    std::cout << "---------print----1-----" << std::endl;
             $$ = $1;
             std::cout << "xor_expr -> expr" << std::endl; 
-            // ($1)->eval()->print();
         }
 	| expr BAR xor_expr
         {
@@ -780,7 +725,7 @@ atom // Used in: power
         | FLOATNUMBER
         {
             std::cout << "FLOATNUMBER -> atom" << std::endl;
-            $$ = new IntLiteral($1);
+            $$ = new FloatLiteral($1);
             pool.add($$);
         }
         | INTNUMBER
@@ -893,26 +838,8 @@ pick_for_test // Used in: dictorsetmaker
 	| star_COMMA_test opt_COMMA
 	;
 classdef // Used in: decorated, compound_stmt
-        : CLASS NAME LPAR opt_testlist RPAR COLON {
-            std::stringstream ss;
-            ss << $2;
-            classStack.push_back(ss.str());
-        } suite
-        {
-          classStack.pop_back();
-          deleteName($2);
-          $$ = $8;
-        }
-	| CLASS NAME COLON  {
-            std::stringstream ss;
-            ss << $2;
-            classStack.push_back(ss.str());
-        } suite
-          {
-            classStack.pop_back();
-            deleteName($2);
-            $$ = $5;
-          }
+        : CLASS NAME LPAR opt_testlist RPAR COLON suite
+	| CLASS NAME COLON suite
 	;
 opt_testlist // Used in: classdef
 	: testlist

@@ -83,7 +83,6 @@ static int keywords = 0;
 static int identifiers = 0;
 static int numbers = 0;
 
-extern int loopIndent;
 %}
 
 %option yylineno
@@ -260,7 +259,7 @@ comment   #.*
 "except"   { return EXCEPT; }
 "exec"     { return EXEC; }
 "finally"  { return FINALLY; }
-"for"      { loopIndent++; return FOR; }
+"for"      { return FOR; }
 "from"     { return FROM; }
 "global"   { return GLOBAL; }
 "if"       { return IF; }
@@ -284,13 +283,15 @@ comment   #.*
 "with"     { return WITH; }
 "yield"    { return YIELD; }
 
-{integer}     {
-  //std::cout << "---intnumber---" << std::endl;
-  return INTNUMBER;
-}
+{integer}  {
+             //std::cout << "---intnumber---" << std::endl;
+             yylval.intNumber = atoi(yytext);
+             return INTNUMBER;
+           }
 
 {floatnumber} {
   //std::cout << "---floatnumber---" << std::endl;
+               yylval.fltNumber = atof(yytext);
                return FLOATNUMBER;
               }
 
