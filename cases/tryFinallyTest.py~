@@ -1,0 +1,33 @@
+def i():
+  for z in range(5):
+    sum += z
+  try:
+    # def k():
+    #   pass
+    1/0
+    for z in range(5):
+        sum += z
+    try:
+      pass
+    except:
+      pass
+    finally:
+      pass
+      for z in range(5):
+        sum += z
+      print("final")
+  except ValueError:
+    for z in range(5):
+        sum += z
+  #  print("Oops!  That was no valid number.  Try again...")
+  # finally:
+  #   for z in range(5):
+  #     sum += z
+  #   print("final")
+
+
+def j():
+  with A() as a:
+    with B() as b:
+      print "with"
+

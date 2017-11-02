@@ -1,0 +1,13 @@
+def multiply(x):
+    if (x > 1):
+      return (x*x)
+def add(x):
+    return (x+x)
+
+def func():
+  funcs = [multiply, add]
+  for i in range(5):
+      value = list(map(lambda x: x(i), funcs))
+      print(value)
+
+func()

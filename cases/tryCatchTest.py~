@@ -1,0 +1,20 @@
+def get():
+    try:
+        pass
+    except:
+        pass
+    else:
+        pass
+        if 1:
+          pass
+        else:
+          pass
+
+def get2():
+    try:
+        pass
+    except:
+        pass
+    else:
+        pass
+
