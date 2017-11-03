@@ -24,6 +24,24 @@ private:
   std::string ident;
 };
 
+
+class UnaryNode : public Node {
+public:
+  UnaryNode(Node *n) : Node(), node(n) {}
+  Node* getVal()  const { return node; }
+  virtual const Literal* eval() const = 0;
+  UnaryNode(const UnaryNode&) = delete;
+  UnaryNode& operator=(const UnaryNode&) = delete;
+protected:
+  Node *node;
+};
+
+class MinusUnaryNode : public UnaryNode {
+public:
+  MinusUnaryNode(Node *n) : UnaryNode(n) {}
+  virtual const Literal* eval() const;
+};
+
 class BinaryNode : public Node {
 public:
   BinaryNode(Node* l, Node* r) : Node(), left(l), right(r) {}
@@ -72,4 +90,3 @@ public:
   PowBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
   virtual const Literal* eval() const;
 };
-

@@ -17,7 +17,7 @@ run: $(OBJS)
 main.o: main.cpp parse.y scan.l parse.tab.c lex.yy.c
 	$(CCC) $(CFLAGS) -c main.cpp
 
-parse.tab.c: parse.y
+parse.tab.c: parse.y includes/ast.h includes/literal.h
 	$(YACC) $(YACCDEBUG) parse.y
 
 parse.tab.o: parse.tab.c

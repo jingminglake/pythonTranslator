@@ -47,11 +47,11 @@
 %start start
 %locations
 
-%type<tokenId> pick_PLUS_MINUS pick_multop
+%type<tokenId> pick_PLUS_MINUS pick_multop pick_unop
 %type<node> arith_expr atom power factor term shift_expr and_expr xor_expr expr
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
 %type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
-%type<node> stmt print_stmt opt_test
+%type<node> stmt print_stmt opt_test opt_yield_test pick_yield_expr_testlist_comp
 %token<fltNumber> FLOATNUMBER 
 %token<intNumber> INTNUMBER
 
@@ -173,12 +173,8 @@ simple_stmt // Used in: stmt, suite
              $$ = $1;
              std::cout << "small_stmt star_SEMI_small_stmt SEMI NEWLINE -> simple_stmt" << std::endl;          }
 	| small_stmt star_SEMI_small_stmt NEWLINE
-         {
-	     // print 
+         { 
 	     $$ = $1;
-	     std::cout << "---------print3---------" << std::endl;
-	     ($$)->eval()->print();
-	     std::cout << "---------print3---------" << std::endl;
              std::cout << "small_stmt star_SEMI_small_stmt NEWLINE  -> simple_stmt" << std::endl;
          }
 	;
@@ -201,9 +197,9 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	| print_stmt
         {
           $$ = $1;
-	  std::cout << "---------print4---------" << std::endl;
+	  std::cout << "---------print_stmt---------" << std::endl;
 	  ($$)->eval()->print();
-	  std::cout << "---------print4---------" << std::endl;
+	  std::cout << "---------print_stmt---------" << std::endl;
         }
 	| del_stmt
 	| pass_stmt
@@ -227,7 +223,7 @@ expr_stmt // Used in: small_stmt
         }
 	| testlist star_EQUAL
         {
-            std::cout << "---------print---------" << std::endl;
+            std::cout << "---------testlist star_EQUAL---------" << std::endl;
 	    if ($2 == NULL)
 	      $$ = $1;
             else {
@@ -258,7 +254,7 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
 	      $$ = new AsgBinaryNode($1, $3);
 	      pool.add($$);
           }
-            std::cout << "star_EQUAL EQUAL pick_yield_expr_testlist -> star_EQUAL" << std::endl;  
+          std::cout << "star_EQUAL EQUAL pick_yield_expr_testlist -> star_EQUAL" << std::endl;  
         }
 	| %empty
         {
@@ -590,9 +586,9 @@ comp_op // Used in: comparison
 expr // Used in: exec_stmt, with_item, comparison, expr, exprlist, star_COMMA_expr
 	: xor_expr
         {
-	    std::cout << "---------print----1-----" << std::endl;
+	    //std::cout << "---------print----1-----" << std::endl;
 	    //($$)->eval()->print();
-	    std::cout << "---------print----1-----" << std::endl;
+	    //std::cout << "---------print----1-----" << std::endl;
             $$ = $1;
             std::cout << "xor_expr -> expr" << std::endl; 
         }
@@ -701,6 +697,12 @@ pick_multop // Used in: term
 factor // Used in: term, factor, power
 	: pick_unop factor
         {
+            if ($1 == MINUS) {
+		$$ = new MinusUnaryNode($2);
+		pool.add($$);
+            } else {
+		$$ = $2;
+            }
             std::cout << "pick_unop factor -> factor" << std::endl;
         }
 	| power
@@ -711,8 +713,17 @@ factor // Used in: term, factor, power
 	;
 pick_unop // Used in: factor
 	: PLUS
+	{
+	    $$ = PLUS;
+        }
 	| MINUS
+	{
+	    $$ = MINUS;
+        }
 	| TILDE
+        {
+	    $$ = TILDE;
+        }
 	;
 power // Used in: factor
 	: atom star_trailer DOUBLESTAR factor
@@ -734,6 +745,10 @@ star_trailer // Used in: power, star_trailer
 	;
 atom // Used in: power
 	: LPAR opt_yield_test RPAR
+	{
+            $$ = $2;
+	    std::cout << "LPAR opt_yield_test RPAR -> atom" << std::endl;
+        }
 	| LSQB opt_listmaker RSQB
 	| LBRACE opt_dictorsetmaker RBRACE
 	| BACKQUOTE testlist1 BACKQUOTE
@@ -760,11 +775,26 @@ atom // Used in: power
 	;
 pick_yield_expr_testlist_comp // Used in: opt_yield_test
 	: yield_expr
+	{ 
+            //$$ = NULL;
+	    std::cout << "yield_expr -> pick_yield_expr_testlist_comp" << std::endl;
+	}
 	| testlist_comp
+	{
+	    std::cout << "testlist_comp -> pick_yield_expr_testlist_comp" << std::endl;
+	}
 	;
 opt_yield_test // Used in: atom
 	: pick_yield_expr_testlist_comp
+	{
+	    $$ = $1;
+	    std::cout << "pick_yield_expr_testlist_comp -> opt_yield_test" << std::endl; 
+	}
 	| %empty
+        { 
+            $$ = NULL;
+	    std::cout << " -> opt_yield_test" << std::endl;
+	}
 	;
 opt_listmaker // Used in: atom
 	: listmaker
@@ -784,7 +814,13 @@ listmaker // Used in: opt_listmaker
 	;
 testlist_comp // Used in: pick_yield_expr_testlist_comp
 	: test comp_for
+        {
+	    std::cout << "test comp_for -> testlist_comp" << std::endl;
+        }
 	| test star_COMMA_test opt_COMMA
+        {
+	    std::cout << "test star_COMMA_test opt_COMMA -> testlist_comp" << std::endl;
+        }
 	;
 lambdef // Used in: test
 	: LAMBDA varargslist COLON test
@@ -792,11 +828,17 @@ lambdef // Used in: test
 	;
 trailer // Used in: star_trailer
 	: LPAR opt_arglist RPAR
+	{
+	    std::cout << "LPAR opt_arglist RPAR -> trailer" << std::endl;  
+	}
 	| LSQB subscriptlist RSQB
+	{
+	    std::cout << "LSQB subscriptlist RSQB -> trailer" << std::endl;  
+	}
 	| DOT NAME
         {
-	  std::cout << "DOT NAME -> trailer" << std::endl;  
-          deleteName($2);
+	    std::cout << "DOT NAME -> trailer" << std::endl;  
+	    deleteName($2);
         }
 	;
 subscriptlist // Used in: trailer

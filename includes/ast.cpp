@@ -23,6 +23,10 @@ const Literal* IdentNode::eval() const {
   return val;
 }
 
+const Literal* MinusUnaryNode::eval() const {
+    const Literal* res = node->eval();
+    return res->opMin();
+}
 
 AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) : 
   BinaryNode(left, right) { 
