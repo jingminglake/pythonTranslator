@@ -85,7 +85,6 @@ const Literal* PowBinaryNode::eval() const {
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
-  return ((*x)*(*y));
-  //return x->opPow(*y);
+  return x->opPower(*y);
 }
 

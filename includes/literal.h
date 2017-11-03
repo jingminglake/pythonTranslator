@@ -22,13 +22,13 @@ public:
   virtual const Literal* opDiv(float) const = 0;
   virtual const Literal* opDiv(int) const = 0;
 
-  //virtual const Literal* opPower(const Literal& rhs) const = 0;
+  virtual const Literal* opPower(const Literal& rhs) const = 0;
   virtual const Literal* opPow(float) const = 0;
   virtual const Literal* opPow(int) const = 0;
 
   virtual const Literal* eval() const = 0;
-  virtual void print() const { 
-    std::cout << "No Way" << std::endl; 
+  virtual void print() const {
+    std::cout << "No Way" << std::endl;
   }
 };
 
@@ -42,7 +42,7 @@ public:
   virtual const Literal* opPlus(float lhs) const  {
     const Literal* node = new FloatLiteral(lhs + val);
     PoolOfNodes::getInstance().add(node);
-    return node; 
+    return node;
   }
   virtual const Literal* opPlus(int lhs) const  {
     const Literal* node = new FloatLiteral(lhs + val);
@@ -94,14 +94,14 @@ public:
     return node;
   }
 
-  //virtual const Literal* opPower(const Literal& rhs) {
-    //rhs.opPow();
-  //}
+  virtual const Literal* opPower(const Literal& rhs) const {
+    return rhs.opPow(val);
+  }
 
   virtual const Literal* opPow(float lhs) const {
     float res = 0.0;
-    if (val != 0) {
-      res = pow(val, lhs);
+    if (lhs != 0) {
+      res = pow(lhs, val);
     }
     const Literal* node = new FloatLiteral(res);
     PoolOfNodes::getInstance().add(node);
@@ -110,8 +110,8 @@ public:
 
   virtual const Literal* opPow(int lhs) const {
     float res = 0.0;
-    if (val != 0) {
-      res = pow(val, lhs);
+    if (lhs != 0) {
+      res = pow(lhs, val);
     }
     const Literal* node = new FloatLiteral(res);
     PoolOfNodes::getInstance().add(node);
@@ -187,21 +187,23 @@ public:
     PoolOfNodes::getInstance().add(node);
     return node;
   }
-
+  
+  virtual const Literal* opPower(const Literal& rhs) const {
+    return rhs.opPow(val);
+  }
   virtual const Literal* opPow(float lhs) const {
     float res = 0.0;
-    if (val != 0) {
-      res = pow(val, lhs);
+    if (lhs != 0) {
+      res = pow(lhs, val);
     }
     const Literal* node = new FloatLiteral(res);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
-
   virtual const Literal* opPow(int lhs) const {
     int res = 0;
-    if (val != 0) {
-      res = pow(val, lhs);
+    if (lhs != 0) {
+        res = pow(lhs, val);
     }
     const Literal* node = new IntLiteral(res);
     PoolOfNodes::getInstance().add(node);
@@ -210,8 +212,8 @@ public:
 
 
   virtual const Literal* eval() const { return this; }
-  virtual void print() const { 
-    std::cout << "INT: " << val << std::endl; 
+  virtual void print() const {
+    std::cout << "INT: " << val << std::endl;
   }
 private:
   int val;

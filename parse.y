@@ -672,8 +672,10 @@ term // Used in: arith_expr, term
         {
 	  if ($2 == STAR) {
 	    $$ = new MulBinaryNode($1, $3);
+            pool.add($$);
           } else if ($2 == SLASH || $2 == DOUBLESLASH) {
 	    $$ = new DivBinaryNode($1, $3);
+            pool.add($$);
 	  }
             std::cout << "term pick_multop factor -> term" << std::endl;
         }
@@ -715,13 +717,14 @@ pick_unop // Used in: factor
 power // Used in: factor
 	: atom star_trailer DOUBLESTAR factor
          {
-             //$$ = 
+             $$ = new PowBinaryNode($1, $4);
              std::cout << "atom star_trailer DOUBLESTAR factor -> power" << std::endl;
          }
 	| atom star_trailer
-        {
+         {
+            $$ = $1;
             std::cout <<  "atom star_trailer -> power" << std::endl;
-        }
+         }
 	;
 star_trailer // Used in: power, star_trailer
 	: star_trailer trailer
