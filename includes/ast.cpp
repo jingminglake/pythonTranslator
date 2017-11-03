@@ -79,3 +79,13 @@ const Literal* DivBinaryNode::eval() const {
   return ((*x)/(*y));
 }
 
+const Literal* PowBinaryNode::eval() const { 
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* x = left->eval();
+  const Literal* y = right->eval();
+  return ((*x)*(*y));
+  //return x->opPow(*y);
+}
+

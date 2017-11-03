@@ -67,3 +67,9 @@ public:
   virtual const Literal* eval() const;
 };
 
+class PowBinaryNode : public BinaryNode {
+public:
+  PowBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
+  virtual const Literal* eval() const;
+};
+

@@ -51,7 +51,7 @@
 %type<node> arith_expr atom power factor term shift_expr and_expr xor_expr expr
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
 %type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
-%type<node> stmt  print_stmt
+%type<node> stmt print_stmt opt_test
 %token<fltNumber> FLOATNUMBER 
 %token<intNumber> INTNUMBER
 
@@ -241,6 +241,7 @@ pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 	: yield_expr
         {
 	    $$ = NULL;
+            std::cout << "yield_expr -> pick_yield_expr_testlist" << std::endl;
         }
 	| testlist
         {
@@ -282,6 +283,7 @@ augassign // Used in: expr_stmt
 print_stmt // Used in: small_stmt
 	: PRINT opt_test
         {
+          $$ = $2;
 	  std::cout << "PRINT opt_test -> print_stmt" << std::endl; 
         }
 	| PRINT RIGHTSHIFT test opt_test_2
@@ -296,7 +298,13 @@ star_COMMA_test // Used in: star_COMMA_test, opt_test, listmaker, testlist_comp,
 	;
 opt_test // Used in: print_stmt
 	: test star_COMMA_test opt_COMMA
+	{
+	  $$ = $1;
+        }
 	| %empty
+        {
+	  $$ = NULL;
+        }
 	;
 plus_COMMA_test // Used in: plus_COMMA_test, opt_test_2
 	: plus_COMMA_test COMMA test
@@ -662,6 +670,11 @@ term // Used in: arith_expr, term
         }
 	| term pick_multop factor
         {
+	  if ($2 == STAR) {
+	    $$ = new MulBinaryNode($1, $3);
+          } else if ($2 == SLASH || $2 == DOUBLESLASH) {
+	    $$ = new DivBinaryNode($1, $3);
+	  }
             std::cout << "term pick_multop factor -> term" << std::endl;
         }
 	;
@@ -678,7 +691,10 @@ pick_multop // Used in: term
         }
 	| PERCENT
 	| DOUBLESLASH
-         { std::cout << " pick_multop **" << std::endl;}
+         { 
+	     $$ = DOUBLESLASH;
+	     std::cout << " pick_multop **" << std::endl;
+         }
 	;
 factor // Used in: term, factor, power
 	: pick_unop factor
@@ -699,6 +715,7 @@ pick_unop // Used in: factor
 power // Used in: factor
 	: atom star_trailer DOUBLESTAR factor
          {
+             //$$ = 
              std::cout << "atom star_trailer DOUBLESTAR factor -> power" << std::endl;
          }
 	| atom star_trailer
@@ -708,7 +725,9 @@ power // Used in: factor
 	;
 star_trailer // Used in: power, star_trailer
 	: star_trailer trailer
+	{  std::cout << "star_trailer trailer -> star_trailer" << std::endl; }
 	| %empty
+        {  std::cout << " -> star_trailer" << std::endl; }
 	;
 atom // Used in: power
 	: LPAR opt_yield_test RPAR
@@ -773,6 +792,7 @@ trailer // Used in: star_trailer
 	| LSQB subscriptlist RSQB
 	| DOT NAME
         {
+	  std::cout << "DOT NAME -> trailer" << std::endl;  
           deleteName($2);
         }
 	;
