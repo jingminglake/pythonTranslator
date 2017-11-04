@@ -67,6 +67,30 @@ public:
   virtual const Literal* eval() const;
 };
 
+class MinasgBinaryNode : public BinaryNode {
+public:
+  MinasgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
+class StarasgBinaryNode : public BinaryNode {
+public:
+  StarasgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
+class SlashasgBinaryNode : public BinaryNode {
+public:
+  SlashasgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
+class DoubleStartasgBinaryNode : public BinaryNode {
+public:
+  DoubleStartasgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
 class AddBinaryNode : public BinaryNode {
 public:
   AddBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }

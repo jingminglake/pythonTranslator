@@ -1,6 +1,7 @@
 #include "node.h"
 #include "poolOfNodes.h"
 #include <cmath>
+#include <cstdio>
 
 class Literal : public Node {
 public:
@@ -184,7 +185,12 @@ public:
   }
   virtual const Literal* opDiv(float lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
-    const Literal* node = new FloatLiteral(lhs / val);
+    char buf[20];
+    sprintf(buf, "%.16f", lhs *(1.0000000000000000) / val);
+    double res = (double)511.0/(double)512;
+    std::cout << "-=-=-=-2=-=-=-=-=--" << res << std::endl;
+    printf("%.16f\n", 1.0f / 3.0f);
+    const Literal* node = new FloatLiteral(res);
     PoolOfNodes::getInstance().add(node);
     return node;
   }

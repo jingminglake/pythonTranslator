@@ -32,7 +32,7 @@ lex.yy.o: lex.yy.c
 ast.o: includes/ast.cpp includes/ast.h includes/literal.h
 	$(CCC) $(CFLAGS) -c includes/ast.cpp
 
-symbolTable.o: includes/symbolTable.cpp includes/symbolTable.h
+symbolTable.o: includes/symbolTable.cpp includes/symbolTable.h includes/ast.h
 	$(CCC) $(CFLAGS) -c includes/symbolTable.cpp
 
 poolOfNodes.o: includes/poolOfNodes.cpp includes/poolOfNodes.h \

@@ -218,19 +218,29 @@ expr_stmt // Used in: small_stmt
                   pool.add($$);
                   break;
               case MINEQUAL:
-		  //$$ = new MineasgBinaryNode($1, $3);
+		  $$ = new MinasgBinaryNode($1, $3);
+                  pool.add($$);
                   break;
               case STAREQUAL:
-		  //$$ = new StarasgBinaryNode($1, $3);
+		  $$ = new StarasgBinaryNode($1, $3);
+                  pool.add($$);
                   break;
+              case SLASHEQUAL:
+                  $$ = new SlashasgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
+              case DOUBLESLASHEQUAL:
+                  $$ = new SlashasgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
+            case DOUBLESTAREQUAL:
+                 $$ = new DoubleStartasgBinaryNode($1, $3);
+                 pool.add($$);
+                 break;
             }
-            if ($3 == NULL) {
+            /*if ($3 == NULL) {
 	      $$ = $1;
-            }
-            else {
-              $$ = new AsgBinaryNode($1, $3); 
-              pool.add($$);
-	    }
+              }*/
             std::cout << "testlist augassign pick_yield_expr_testlist -> expr_stmt" << std::endl;
         }
 	| testlist star_EQUAL
