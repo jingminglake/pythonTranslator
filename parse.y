@@ -47,7 +47,7 @@
 %start start
 %locations
 
-%type<tokenId> pick_PLUS_MINUS pick_multop pick_unop
+%type<tokenId> pick_PLUS_MINUS pick_multop pick_unop augassign
 %type<node> arith_expr atom power factor term shift_expr and_expr xor_expr expr
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
 %type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
@@ -212,6 +212,18 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist
         {
+            switch($2) {
+              case PLUSEQUAL:
+		  $$ = new PlusasgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
+              case MINEQUAL:
+		  //$$ = new MineasgBinaryNode($1, $3);
+                  break;
+              case STAREQUAL:
+		  //$$ = new StarasgBinaryNode($1, $3);
+                  break;
+            }
             if ($3 == NULL) {
 	      $$ = $1;
             }
@@ -264,17 +276,53 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
 	;
 augassign // Used in: expr_stmt
 	: PLUSEQUAL
+	{
+           $$ = PLUSEQUAL;
+        }
 	| MINEQUAL
+        {
+           $$ = MINEQUAL;
+        }
 	| STAREQUAL
+        {
+           $$ = STAREQUAL;
+        }
 	| SLASHEQUAL
+        {
+           $$ = SLASHEQUAL;
+        }
 	| PERCENTEQUAL
+        {
+           $$ = PERCENTEQUAL;
+        }
 	| AMPEREQUAL
+        {
+           $$ = AMPEREQUAL;
+        }
 	| VBAREQUAL
+        {
+           $$ = VBAREQUAL;
+        }
 	| CIRCUMFLEXEQUAL
+        {
+           $$ = CIRCUMFLEXEQUAL;
+        }
 	| LEFTSHIFTEQUAL
+        {
+           $$ = LEFTSHIFTEQUAL;
+        }
 	| RIGHTSHIFTEQUAL
+        {
+           $$ = RIGHTSHIFTEQUAL;
+        }
 	| DOUBLESTAREQUAL
+        {
+           $$ = DOUBLESTAREQUAL;
+        }
 	| DOUBLESLASHEQUAL
+        {
+           $$ = DOUBLESLASHEQUAL;
+        }
 	;
 print_stmt // Used in: small_stmt
 	: PRINT opt_test

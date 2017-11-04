@@ -61,6 +61,12 @@ public:
   virtual const Literal* eval() const;
 };
 
+class PlusasgBinaryNode : public BinaryNode {
+public:
+  PlusasgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
 class AddBinaryNode : public BinaryNode {
 public:
   AddBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
