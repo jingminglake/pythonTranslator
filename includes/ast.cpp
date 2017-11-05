@@ -217,6 +217,39 @@ const Literal* DoubleStartasgBinaryNode::eval() const {
   return res;
 }
 
+PercentStartasgBinaryNode::PercentStartasgBinaryNode(Node* left, Node* right) : 
+  BinaryNode(left, right) { 
+  const Literal* augVal = right->eval();
+  const std::string n = static_cast<IdentNode*>(left)->getIdent();
+  const Literal* oldValue = NULL;
+  try {
+      oldValue = SymbolTable::getInstance().getValue(n);
+  } catch(const std::string& msg) {
+      std::cout << msg << std::endl;
+      exit(-1);
+  }
+  const Literal* res = (*oldValue) % (*augVal);
+  SymbolTable::getInstance().setValue(n, res);
+}
+
+const Literal* PercentStartasgBinaryNode::eval() const { 
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* augVal = right->eval();
+  const std::string n = static_cast<IdentNode*>(left)->getIdent();
+  const Literal* oldValue = NULL;
+  try {
+      oldValue = SymbolTable::getInstance().getValue(n);
+  } catch(const std::string& msg) {
+      std::cout << msg << std::endl;
+      exit(-1);
+  }
+  const Literal* res = (*oldValue) % (*augVal);
+  SymbolTable::getInstance().setValue(n, res);
+  return res;
+}
+
 const Literal* AddBinaryNode::eval() const { 
   if (!left || !right) {
     throw "error";
@@ -253,6 +286,15 @@ const Literal* DivBinaryNode::eval() const {
   return ((*x)/(*y));
 }
 
+const Literal* ModBinaryNode::eval() const { 
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* x = left->eval();
+  const Literal* y = right->eval();
+  return ((*x)%(*y));
+}
+
 const Literal* PowBinaryNode::eval() const { 
   if (!left || !right) {
     throw "error";
@@ -261,4 +303,3 @@ const Literal* PowBinaryNode::eval() const {
   const Literal* y = right->eval();
   return x->opPower(*y);
 }
-

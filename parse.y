@@ -2,7 +2,6 @@
 %{
         #include <iostream>
         #include <vector>
-        #include <sstream>
         #include "includes/ast.h"
 	int yylex (void);
 	extern char *yytext;
@@ -233,10 +232,14 @@ expr_stmt // Used in: small_stmt
                   $$ = new SlashasgBinaryNode($1, $3);
                   pool.add($$);
                   break;
-            case DOUBLESTAREQUAL:
-                 $$ = new DoubleStartasgBinaryNode($1, $3);
-                 pool.add($$);
-                 break;
+              case DOUBLESTAREQUAL:
+                  $$ = new DoubleStartasgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
+              case PERCENTEQUAL:
+                  $$ = new PercentStartasgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
             }
             /*if ($3 == NULL) {
 	      $$ = $1;
@@ -730,7 +733,10 @@ term // Used in: arith_expr, term
           } else if ($2 == SLASH || $2 == DOUBLESLASH) {
 	    $$ = new DivBinaryNode($1, $3);
             pool.add($$);
-	  }
+	  } else if ($2 == PERCENT) {
+            $$ = new ModBinaryNode($1, $3);
+            pool.add($$);
+          }      
             std::cout << "term pick_multop factor -> term" << std::endl;
         }
 	;
@@ -738,18 +744,18 @@ pick_multop // Used in: term
 	: STAR
         {
             $$ = STAR;
-            std::cout << "pick_multop *" << std::endl;
         }
 	| SLASH
         {
             $$ = SLASH;
-            std::cout << "pick_multop /" << std::endl;
         }
 	| PERCENT
+	{
+            $$ = PERCENT;
+        }
 	| DOUBLESLASH
          { 
 	     $$ = DOUBLESLASH;
-	     std::cout << " pick_multop **" << std::endl;
          }
 	;
 factor // Used in: term, factor, power

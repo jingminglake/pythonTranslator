@@ -2,29 +2,34 @@
 #include "poolOfNodes.h"
 #include <cmath>
 #include <cstdio>
+#include <iomanip>
 
 class Literal : public Node {
 public:
   virtual ~Literal() {}
 
   virtual const Literal* operator+(const Literal& rhs) const = 0;
-  virtual const Literal* opPlus(float) const = 0;
+  virtual const Literal* opPlus(long double) const = 0;
   virtual const Literal* opPlus(int) const = 0;
 
   virtual const Literal* operator*(const Literal& rhs) const = 0;
-  virtual const Literal* opMult(float) const = 0;
+  virtual const Literal* opMult(long double) const = 0;
   virtual const Literal* opMult(int) const = 0;
 
   virtual const Literal* operator-(const Literal& rhs) const = 0;
-  virtual const Literal* opSubt(float) const = 0;
+  virtual const Literal* opSubt(long double) const = 0;
   virtual const Literal* opSubt(int) const = 0;
 
   virtual const Literal* operator/(const Literal& rhs) const = 0;
-  virtual const Literal* opDiv(float) const = 0;
+  virtual const Literal* opDiv(long double) const = 0;
   virtual const Literal* opDiv(int) const = 0;
 
+  virtual const Literal* operator%(const Literal& rhs) const = 0;
+  virtual const Literal* opMod(long double) const = 0;
+  virtual const Literal* opMod(int) const = 0;
+
   virtual const Literal* opPower(const Literal& rhs) const = 0;
-  virtual const Literal* opPow(float) const = 0;
+  virtual const Literal* opPow(long double) const = 0;
   virtual const Literal* opPow(int) const = 0;
 
   virtual const Literal* opMin() const = 0;
@@ -36,12 +41,12 @@ public:
 
 class FloatLiteral: public Literal {
 public:
-  FloatLiteral(float _val): val(_val) {}
+  FloatLiteral(long double _val): val(_val) {}
 
   virtual const Literal* operator+(const Literal& rhs) const  {
     return rhs.opPlus(val);
   }
-  virtual const Literal* opPlus(float lhs) const  {
+  virtual const Literal* opPlus(long double lhs) const  {
     const Literal* node = new FloatLiteral(lhs + val);
     PoolOfNodes::getInstance().add(node);
     return node;
@@ -55,7 +60,7 @@ public:
   virtual const Literal* operator-(const Literal& rhs) const  {
     return rhs.opSubt(val);
   }
-  virtual const Literal* opSubt(float lhs) const  {
+  virtual const Literal* opSubt(long double lhs) const  {
     const Literal* node = new FloatLiteral(lhs - val);
     PoolOfNodes::getInstance().add(node);
     return node;
@@ -69,13 +74,13 @@ public:
   virtual const Literal* operator*(const Literal& rhs) const  {
     return rhs.opMult(val);
   }
-  virtual const Literal* opMult(float lhs) const  {
+  virtual const Literal* opMult(long double lhs) const  {
     const Literal* node = new FloatLiteral(lhs * val);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
   virtual const Literal* opMult(int lhs) const  {
-    const Literal* node = new FloatLiteral(static_cast<float>(lhs) * val);
+    const Literal* node = new FloatLiteral(static_cast<long double>(lhs) * val);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -83,7 +88,7 @@ public:
   virtual const Literal* operator/(const Literal& rhs) const  {
     return rhs.opDiv(val);
   }
-  virtual const Literal* opDiv(float lhs) const  {
+  virtual const Literal* opDiv(long double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     const Literal* node = new FloatLiteral(lhs / val);
     PoolOfNodes::getInstance().add(node);
@@ -96,12 +101,29 @@ public:
     return node;
   }
 
+ virtual const Literal* operator%(const Literal& rhs) const  {
+    return rhs.opMod(val);
+  }
+  virtual const Literal* opMod(long double lhs) const  {
+    if ( val == 0 ) throw std::string("Zero Mod Error");
+    const Literal* node = new FloatLiteral(fmod(lhs, val));
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+  virtual const Literal* opMod(int lhs) const  {
+    if ( val == 0 ) throw std::string("Zero Mod Error");
+    const Literal* node = new FloatLiteral(fmod(lhs, val));
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+
   virtual const Literal* opPower(const Literal& rhs) const {
     return rhs.opPow(val);
   }
 
-  virtual const Literal* opPow(float lhs) const {
-    float res = 0.0;
+  virtual const Literal* opPow(long double lhs) const {
+    long double res = 0.0;
     if (lhs != 0) {
       res = pow(lhs, val);
     }
@@ -111,7 +133,7 @@ public:
   }
 
   virtual const Literal* opPow(int lhs) const {
-    float res = 0.0;
+    long double res = 0.0;
     if (lhs != 0) {
       res = pow(lhs, val);
     }
@@ -127,11 +149,17 @@ public:
   }
 
   virtual const Literal* eval() const { return this; }
-  virtual void print() const { 
-    std::cout << "FLOAT: " << val << std::endl; 
+  virtual void print() const {
+      std::cout << "FLOAT: ";
+      if  (val == (int)val) {
+          std::cout << val << ".0" << std::endl;
+      } else {
+      std::cout << std::setprecision(16) << val << std::endl;
+      //printf("FLOAT: %.16Lg\n", val);
+      }
   }
 private:
-  float val;
+  long double val;
 };
 
 class IntLiteral: public Literal {
@@ -141,8 +169,8 @@ public:
   virtual const Literal* operator+(const Literal& rhs) const  {
     return rhs.opPlus(val);
   }
-  virtual const Literal* opPlus(float lhs) const  {
-    const Literal* node = new FloatLiteral(static_cast<float>(val) + lhs);
+  virtual const Literal* opPlus(long double lhs) const  {
+    const Literal* node = new FloatLiteral(static_cast<long double>(val) + lhs);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -155,7 +183,7 @@ public:
   virtual const Literal* operator-(const Literal& rhs) const  {
     return rhs.opSubt(val);
   }
-  virtual const Literal* opSubt(float lhs) const  {
+  virtual const Literal* opSubt(long double lhs) const  {
     const Literal* node = new FloatLiteral(lhs - val);
     PoolOfNodes::getInstance().add(node);
     return node;
@@ -169,7 +197,7 @@ public:
   virtual const Literal* operator*(const Literal& rhs) const  {
     return rhs.opMult(val);
   }
-  virtual const Literal* opMult(float lhs) const  {
+  virtual const Literal* opMult(long double lhs) const  {
     const Literal* node = new FloatLiteral(lhs * val);
     PoolOfNodes::getInstance().add(node);
     return node;
@@ -183,23 +211,49 @@ public:
   virtual const Literal* operator/(const Literal& rhs) const  {
     return rhs.opDiv(val);
   }
-  virtual const Literal* opDiv(float lhs) const  {
+  virtual const Literal* opDiv(long double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
-    char buf[20];
-    sprintf(buf, "%.16f", lhs *(1.0000000000000000) / val);
-    double res = (double)511.0/(double)512;
-    std::cout << "-=-=-=-2=-=-=-=-=--" << res << std::endl;
-    printf("%.16f\n", 1.0f / 3.0f);
-    const Literal* node = new FloatLiteral(res);
+    //char buf[100];
+    // sprintf(buf, "%.16Lf", (long double)lhs /(long double)val);
+    //std::cout << "SUccessfully parsed111: " << buf << std::endl;
+    //char * e;
+    //errno = 0;
+    //long double res = std::strtold(buf, &e);
+    //if (*e != '\0' || errno != 0) { /* error */ std::abort(); }
+
+    //std::cout << "Successfully parsed: " << res << std::endl;
+    //std::cout << "-=-=-=-2=-=-=-=-=--" << res << std::endl;
+    //long double x = 1.0;
+    //long double y = 3.0;
+    //printf("%.16Lf\n", x / y);
+    //std::cout << "-=-=-=-=-=-=" << x / y << std::endl;
+    const Literal* node = new FloatLiteral(lhs / val);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
   virtual const Literal* opDiv(int lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     int res = lhs / val;
-    if ((lhs < 0) ^ (val < 0))
+    int m = lhs % val;
+    if (((lhs < 0) ^ (val < 0)) && m != 0)
 	res -= 1;
     const Literal* node = new IntLiteral(res);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator%(const Literal& rhs) const  {
+    return rhs.opMod(val);
+  }
+  virtual const Literal* opMod(long double lhs) const  {
+    if ( val == 0 ) throw std::string("Zero Mod Error");
+    const Literal* node = new FloatLiteral(fmod(lhs, val));
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+  virtual const Literal* opMod(int lhs) const  {
+    if ( val == 0 ) throw std::string("Zero Mod Error");
+    const Literal* node = new IntLiteral(lhs % val);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -207,8 +261,8 @@ public:
   virtual const Literal* opPower(const Literal& rhs) const {
     return rhs.opPow(val);
   }
-  virtual const Literal* opPow(float lhs) const {
-    float res = 0.0;
+  virtual const Literal* opPow(long double lhs) const {
+    long double res = 0.0;
     if (lhs != 0) {
       res = pow(lhs, val);
     }

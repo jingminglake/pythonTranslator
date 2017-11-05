@@ -91,6 +91,12 @@ public:
   virtual const Literal* eval() const;
 };
 
+class PercentStartasgBinaryNode : public BinaryNode {
+public:
+  PercentStartasgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
 class AddBinaryNode : public BinaryNode {
 public:
   AddBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
@@ -112,6 +118,12 @@ public:
 class DivBinaryNode : public BinaryNode {
 public:
   DivBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
+  virtual const Literal* eval() const;
+};
+
+class ModBinaryNode : public BinaryNode {
+public:
+  ModBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
   virtual const Literal* eval() const;
 };
 
