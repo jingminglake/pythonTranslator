@@ -1,6 +1,6 @@
 #1+1
 #x = 2
-z = y = x = 1
+x = z = y = 1
 #print y
 #x = 1 + 1.1
 #print x - 5

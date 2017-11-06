@@ -315,7 +315,7 @@ star_EQUAL_R // Used in: expr_stmt, star_EQUAL
 	: EQUAL pick_yield_expr_testlist star_EQUAL_R
         {
             if ($3 == NULL) {
-                $$ = new AsgBinaryNode($$, $2);
+                $$ = $2;
             } else {
                 $$ = new AsgBinaryNode($2, $3);
             }
