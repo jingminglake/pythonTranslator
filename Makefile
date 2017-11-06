@@ -1,4 +1,3 @@
-
 CCC = clang++
 LEX = flex
 YACC = bison

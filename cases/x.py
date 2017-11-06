@@ -1,5 +1,7 @@
+#1+1
 #x = 2
-#z = y = x = 1
+z = y = x = 1
+print z
 #x = 1 + 1.1
 #print x - 5
 #y = x
@@ -22,4 +24,5 @@
 #x %= 3
 #print x
 #print 10 % 3
-print -10 / 2
+#print -10 / 2
+

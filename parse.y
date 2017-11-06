@@ -8,7 +8,9 @@
 	void yyerror (const char *);
         // extern YYSTYPE yylval;
         void deleteName(char *name);
-        PoolOfNodes& pool = PoolOfNodes::getInstance(); 
+        PoolOfNodes& pool = PoolOfNodes::getInstance();
+        bool myDebug = false;
+        void printDebugMsg(const char *);
 %}
 
 %code requires {
@@ -59,23 +61,23 @@
 start
 	: file_input
         {
-             std::cout <<  "file_input -> start" << std::endl;
+            printDebugMsg("file_input -> start");
         }
 	;
 file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
         {
-            std::cout <<  "star_NEWLINE_stmt ENDMARKER -> file_input" << std::endl;
+            printDebugMsg("star_NEWLINE_stmt ENDMARKER -> file_input");
         }
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
         {
-          std::cout << "NEWLINE -> pick_NEWLINE_stmt" << std::endl;
+            printDebugMsg("NEWLINE -> pick_NEWLINE_stmt");
         }
 	| stmt
         {
-            std::cout << "stmt -> pick_NEWLINE_stmt" << std::endl;
+            printDebugMsg("stmt -> pick_NEWLINE_stmt");
         }
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
@@ -158,55 +160,62 @@ stmt // Used in: pick_NEWLINE_stmt, plus_stmt
          {
              $$ = $1;
 	     //($$)->eval()->print();
-             std::cout << "simple_stmt -> stmt" << std::endl;
+             printDebugMsg("simple_stmt -> stmt");
          }
 	| compound_stmt
          {
 	     $$ = NULL;
-             std::cout << "compound_stmt -> stmt" << std::endl;
+             printDebugMsg("compound_stmt -> stmt");
          }
 	;
 simple_stmt // Used in: stmt, suite
 	: small_stmt star_SEMI_small_stmt SEMI NEWLINE
          {
              $$ = $1;
-             std::cout << "small_stmt star_SEMI_small_stmt SEMI NEWLINE -> simple_stmt" << std::endl;          }
+             printDebugMsg("small_stmt star_SEMI_small_stmt SEMI NEWLINE -> simple_stmt");          }
 	| small_stmt star_SEMI_small_stmt NEWLINE
          { 
 	     $$ = $1;
-             std::cout << "small_stmt star_SEMI_small_stmt NEWLINE  -> simple_stmt" << std::endl;
+             printDebugMsg("small_stmt star_SEMI_small_stmt NEWLINE  -> simple_stmt");
          }
 	;
 star_SEMI_small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	: star_SEMI_small_stmt SEMI small_stmt
         {
-            std::cout << "star_SEMI_small_stmt SEMI small_stmt -> star_SEMI_small_stmt" << std::endl;
+            printDebugMsg("star_SEMI_small_stmt SEMI small_stmt -> star_SEMI_small_stmt");
         }
 	| %empty
         {
-           std::cout << " -> star_SEMI_small_stmt" << std::endl; 
+            printDebugMsg(" -> star_SEMI_small_stmt"); 
         }
 	;
 small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	: expr_stmt
         {
-          $$ = $1;
-          std::cout << "expr_stmt -> small_stmt" << std::endl; 
+           $$ = $1;
+           printDebugMsg("expr_stmt -> small_stmt"); 
         }
 	| print_stmt
         {
-          $$ = $1;
-	  std::cout << "---------print_stmt---------" << std::endl;
-	  ($$)->eval()->print();
-	  std::cout << "---------print_stmt---------" << std::endl;
+           $$ = $1;
+	   printDebugMsg("---------print_stmt---------");
+	   ($$)->eval()->print();
+	   printDebugMsg("---------print_stmt---------");
         }
 	| del_stmt
+	{ $$ = NULL; }
 	| pass_stmt
+	{ $$ = NULL; }
 	| flow_stmt
+        { $$ = NULL; }
 	| import_stmt
+        { $$ = NULL; }
 	| global_stmt
+        { $$ = NULL; }
 	| exec_stmt
+        { $$ = NULL; }
 	| assert_stmt
+        { $$ = NULL; }
 	;
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist
@@ -244,30 +253,33 @@ expr_stmt // Used in: small_stmt
             /*if ($3 == NULL) {
 	      $$ = $1;
               }*/
-            std::cout << "testlist augassign pick_yield_expr_testlist -> expr_stmt" << std::endl;
+            printDebugMsg("testlist augassign pick_yield_expr_testlist -> expr_stmt");
         }
 	| testlist star_EQUAL
         {
-            std::cout << "---------testlist star_EQUAL---------" << std::endl;
-	    if ($2 == NULL)
+	    if ($2 == NULL) {
 	      $$ = $1;
+              printDebugMsg("---------testlist star_EQUAL---------");
+	      ($$)->eval()->print();
+	      printDebugMsg("---------testlist star_EQUAL---------");
+            }
             else {
               $$ = new AsgBinaryNode($1, $2); 
               pool.add($$);
 	    }
-            std::cout << "testlist star_EQUAL -> expr_stmt" << std::endl;
+            printDebugMsg("testlist star_EQUAL -> expr_stmt");
         }
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 	: yield_expr
         {
 	    $$ = NULL;
-            std::cout << "yield_expr -> pick_yield_expr_testlist" << std::endl;
+            printDebugMsg("yield_expr -> pick_yield_expr_testlist");
         }
 	| testlist
         {
             $$ = $1;
-            std::cout << "testlist -> pick_yield_expr_testlist" << std::endl;
+            printDebugMsg("testlist -> pick_yield_expr_testlist");
         }
 	;
 star_EQUAL // Used in: expr_stmt, star_EQUAL
@@ -279,12 +291,12 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
 	      $$ = new AsgBinaryNode($1, $3);
 	      pool.add($$);
           }
-          std::cout << "star_EQUAL EQUAL pick_yield_expr_testlist -> star_EQUAL" << std::endl;  
+          printDebugMsg("star_EQUAL EQUAL pick_yield_expr_testlist -> star_EQUAL");  
         }
 	| %empty
         {
             $$ = NULL;
-            std::cout << "  -> star_EQUAL" << std::endl;
+            printDebugMsg("  -> star_EQUAL");
         }
 	;
 augassign // Used in: expr_stmt
@@ -341,12 +353,12 @@ print_stmt // Used in: small_stmt
 	: PRINT opt_test
         {
           $$ = $2;
-	  std::cout << "PRINT opt_test -> print_stmt" << std::endl; 
+	  printDebugMsg("PRINT opt_test -> print_stmt"); 
         }
 	| PRINT RIGHTSHIFT test opt_test_2
         {
 	  $$ = $3;
-          std::cout << "PRINT RIGHTSHIFT test opt_test_2 -> print_stmt" << std::endl;
+          printDebugMsg("PRINT RIGHTSHIFT test opt_test_2 -> print_stmt");
         }
 	;
 star_COMMA_test // Used in: star_COMMA_test, opt_test, listmaker, testlist_comp, testlist, pick_for_test
@@ -557,9 +569,9 @@ opt_AS_COMMA // Used in: except_clause
 	;
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
 	: simple_stmt
-	{ std::cout << "simple_stmt -> suite" << std::endl; }
+	{ printDebugMsg("simple_stmt -> suite"); }
 	| NEWLINE INDENT plus_stmt DEDENT
-        { std::cout << "NEWLINE INDENT plus_stmt DEDENT -> suite" << std::endl; }
+        { printDebugMsg("NEWLINE INDENT plus_stmt DEDENT -> suite"); }
 	;
 plus_stmt // Used in: suite, plus_stmt
 	: plus_stmt stmt
@@ -585,7 +597,7 @@ test // Used in: opt_EQUAL_test, print_stmt, star_COMMA_test, opt_test, plus_COM
 	: or_test opt_IF_ELSE
         {
             $$ = $1;
-            std::cout << "or_test opt_IF_ELSE -> test" << std::endl; }
+            printDebugMsg("or_test opt_IF_ELSE -> test"); }
 	| lambdef
 	{ $$ = NULL;} 
 	;
@@ -597,39 +609,39 @@ or_test // Used in: old_test, test, opt_IF_ELSE, or_test, comp_for
 	: and_test
          {
              $$ = $1;
-             std::cout << "and_test -> or_test" << std::endl;
+             printDebugMsg("and_test -> or_test");
          }
 	| or_test OR and_test
-         { std::cout << "or_test OR and_test -> or_test" << std::endl; }
+         { printDebugMsg("or_test OR and_test -> or_test"); }
 	;
 and_test // Used in: or_test, and_test
 	: not_test
          {
              $$ = $1;
-             std::cout << "not_test -> and_test" << std::endl;
+             printDebugMsg("not_test -> and_test");
          }
 	| and_test AND not_test
-         { std::cout << "and_test AND not_test  -> and_test" << std::endl; }
+         { printDebugMsg("and_test AND not_test  -> and_test"); }
 	;
 not_test // Used in: and_test, not_test
 	: NOT not_test
          {
-             std::cout << "NOT not_test -> not_test" << std::endl;
+             printDebugMsg("NOT not_test -> not_test");
          }
 	| comparison
          {
             $$ = $1;   
-            std::cout << "comparison -> not_test" << std::endl; 
+            printDebugMsg("comparison -> not_test"); 
          }
 	;
 comparison // Used in: not_test, comparison
 	: expr
          {
              $$ = $1;
-             std::cout << "expr -> comparison" << std::endl;
+             printDebugMsg("expr -> comparison");
          }
 	| comparison comp_op expr
-         { std::cout << "comp_op expr -> comparison" << std::endl; }
+         { printDebugMsg("comp_op expr -> comparison"); }
 	;
 comp_op // Used in: comparison
 	: LESS
@@ -651,40 +663,40 @@ expr // Used in: exec_stmt, with_item, comparison, expr, exprlist, star_COMMA_ex
 	    //($$)->eval()->print();
 	    //std::cout << "---------print----1-----" << std::endl;
             $$ = $1;
-            std::cout << "xor_expr -> expr" << std::endl; 
+            printDebugMsg("xor_expr -> expr"); 
         }
 	| expr BAR xor_expr
         {
-            std::cout << "expr BAR xor_expr -> expr" << std::endl;
+            printDebugMsg("expr BAR xor_expr -> expr");
         }
 	;
 xor_expr // Used in: expr, xor_expr
 	: and_expr
         {
             $$ = $1;
-            std::cout << "and_expr -> xor_expr" << std::endl; }
+            printDebugMsg("and_expr -> xor_expr"); }
 	| xor_expr CIRCUMFLEX and_expr
-        { std::cout << " xor_expr CIRCUMFLEX and_expr -> xor_expr" << std::endl; }
+        { printDebugMsg(" xor_expr CIRCUMFLEX and_expr -> xor_expr"); }
 	;
 and_expr // Used in: xor_expr, and_expr
 	: shift_expr
         {
             $$ = $1;
-            std::cout << "shift_expr -> and_expr" << std::endl;
+            printDebugMsg("shift_expr -> and_expr");
         }
 	| and_expr AMPERSAND shift_expr
         {
-            std::cout << "and_expr AMPERSAND shift_expr -> and_expr" << std::endl;
+            printDebugMsg("and_expr AMPERSAND shift_expr -> and_expr");
         }
 	;
 shift_expr // Used in: and_expr, shift_expr
 	: arith_expr
         {
             $$ = $1;
-            std::cout << "arith_expr -> shift_expr" << std::endl;
+            printDebugMsg("arith_expr -> shift_expr");
         }
 	| shift_expr pick_LEFTSHIFT_RIGHTSHIFT arith_expr
-        { std::cout << "shift_expr pick_LEFTSHIFT_RIGHTSHIFT arith_expr -> shift_expr" << std::endl; }
+        { printDebugMsg("shift_expr pick_LEFTSHIFT_RIGHTSHIFT arith_expr -> shift_expr"); }
 	;
 pick_LEFTSHIFT_RIGHTSHIFT // Used in: shift_expr
 	: LEFTSHIFT
@@ -694,11 +706,11 @@ arith_expr // Used in: shift_expr, arith_expr
 	: term
         {
             $$ = $1;
-            std::cout << "term -> arith_expr" << std::endl;
+           printDebugMsg("term -> arith_expr");
         }
 	| arith_expr pick_PLUS_MINUS term
         {
-            std::cout << "arith_expr pick_PLUS_MINUS term -> arith_expr" << std::endl;
+            printDebugMsg("arith_expr pick_PLUS_MINUS term -> arith_expr");
             if ($2 == PLUS) {
                 $$ = new AddBinaryNode($1, $3);
                 pool.add($$);
@@ -712,18 +724,18 @@ pick_PLUS_MINUS // Used in: arith_expr
 	: PLUS
         {
             $$ = PLUS;
-            std::cout << "PLUS -> pick_PLUS_MINUS" << std::endl;
+            printDebugMsg("PLUS -> pick_PLUS_MINUS");
         }
 	| MINUS
         {
             $$ = MINUS;
-            std::cout << "PLUS -> pick_PLUS_MINUS -" << std::endl; }
+            printDebugMsg("MINUS -> pick_PLUS_MINUS"); }
 	;
 term // Used in: arith_expr, term
 	: factor
         {
             $$ = $1;
-            std::cout << "factor -> term" << std::endl;
+            printDebugMsg("factor -> term");
         }
 	| term pick_multop factor
         {
@@ -737,7 +749,7 @@ term // Used in: arith_expr, term
             $$ = new ModBinaryNode($1, $3);
             pool.add($$);
           }      
-            std::cout << "term pick_multop factor -> term" << std::endl;
+            printDebugMsg("term pick_multop factor -> term");
         }
 	;
 pick_multop // Used in: term
@@ -767,12 +779,12 @@ factor // Used in: term, factor, power
             } else {
 		$$ = $2;
             }
-            std::cout << "pick_unop factor -> factor" << std::endl;
+            printDebugMsg("pick_unop factor -> factor");
         }
 	| power
         {
             $$ = $1;
-            std::cout << "power -> factor" << std::endl; 
+            printDebugMsg("power -> factor"); 
         }
 	;
 pick_unop // Used in: factor
@@ -793,19 +805,19 @@ power // Used in: factor
 	: atom star_trailer DOUBLESTAR factor
          {
              $$ = new PowBinaryNode($1, $4);
-             std::cout << "atom star_trailer DOUBLESTAR factor -> power" << std::endl;
+             printDebugMsg("atom star_trailer DOUBLESTAR factor -> power");
          }
 	| atom star_trailer
          {
             $$ = $1;
-            std::cout <<  "atom star_trailer -> power" << std::endl;
+            printDebugMsg("atom star_trailer -> power");
          }
 	;
 star_trailer // Used in: power, star_trailer
 	: star_trailer trailer
-	{  std::cout << "star_trailer trailer -> star_trailer" << std::endl; }
+	{  printDebugMsg("star_trailer trailer -> star_trailer"); }
 	| %empty
-        {  std::cout << " -> star_trailer" << std::endl; }
+        {  printDebugMsg(" -> star_trailer"); }
 	;
 atom // Used in: power
 	: LPAR opt_yield_test RPAR
@@ -814,50 +826,54 @@ atom // Used in: power
 	    std::cout << "LPAR opt_yield_test RPAR -> atom" << std::endl;
         }
 	| LSQB opt_listmaker RSQB
+	{ $$ = NULL; }
 	| LBRACE opt_dictorsetmaker RBRACE
+	{ $$ = NULL; }
 	| BACKQUOTE testlist1 BACKQUOTE
+	{ $$ = NULL; }
 	| NAME
         {
-            std::cout << "NAME -> atom" << std::endl;
+            printDebugMsg("NAME -> atom");
             $$ = new IdentNode($1);
             deleteName($1);
             pool.add($$);
         }
         | FLOATNUMBER
         {
-            std::cout << "FLOATNUMBER -> atom" << std::endl;
+            printDebugMsg("FLOATNUMBER -> atom");
             $$ = new FloatLiteral($1);
             pool.add($$);
         }
         | INTNUMBER
         {
-            std::cout << "INTNUMBER -> atom" << std::endl;
+            printDebugMsg("INTNUMBER -> atom");
             $$ = new IntLiteral($1);
             pool.add($$);
         }
 	| plus_STRING
+        { $$ = NULL; }
 	;
 pick_yield_expr_testlist_comp // Used in: opt_yield_test
 	: yield_expr
 	{ 
             //$$ = NULL;
-	    std::cout << "yield_expr -> pick_yield_expr_testlist_comp" << std::endl;
+	    printDebugMsg("yield_expr -> pick_yield_expr_testlist_comp");
 	}
 	| testlist_comp
 	{
-	    std::cout << "testlist_comp -> pick_yield_expr_testlist_comp" << std::endl;
+	    printDebugMsg("testlist_comp -> pick_yield_expr_testlist_comp");
 	}
 	;
 opt_yield_test // Used in: atom
 	: pick_yield_expr_testlist_comp
 	{
 	    $$ = $1;
-	    std::cout << "pick_yield_expr_testlist_comp -> opt_yield_test" << std::endl; 
+	    printDebugMsg("pick_yield_expr_testlist_comp -> opt_yield_test"); 
 	}
 	| %empty
         { 
             $$ = NULL;
-	    std::cout << " -> opt_yield_test" << std::endl;
+	    printDebugMsg(" -> opt_yield_test");
 	}
 	;
 opt_listmaker // Used in: atom
@@ -879,11 +895,11 @@ listmaker // Used in: opt_listmaker
 testlist_comp // Used in: pick_yield_expr_testlist_comp
 	: test comp_for
         {
-	    std::cout << "test comp_for -> testlist_comp" << std::endl;
+	    printDebugMsg("test comp_for -> testlist_comp");
         }
 	| test star_COMMA_test opt_COMMA
         {
-	    std::cout << "test star_COMMA_test opt_COMMA -> testlist_comp" << std::endl;
+	    printDebugMsg("test star_COMMA_test opt_COMMA -> testlist_comp");
         }
 	;
 lambdef // Used in: test
@@ -893,15 +909,15 @@ lambdef // Used in: test
 trailer // Used in: star_trailer
 	: LPAR opt_arglist RPAR
 	{
-	    std::cout << "LPAR opt_arglist RPAR -> trailer" << std::endl;  
+	    printDebugMsg("LPAR opt_arglist RPAR -> trailer");  
 	}
 	| LSQB subscriptlist RSQB
 	{
-	    std::cout << "LSQB subscriptlist RSQB -> trailer" << std::endl;  
+	    printDebugMsg("LSQB subscriptlist RSQB -> trailer");  
 	}
 	| DOT NAME
         {
-	    std::cout << "DOT NAME -> trailer" << std::endl;  
+	    printDebugMsg("DOT NAME -> trailer");  
 	    deleteName($2);
         }
 	;
@@ -942,12 +958,12 @@ testlist // Used in: expr_stmt, pick_yield_expr_testlist, return_stmt, for_stmt,
 	: test star_COMMA_test COMMA
         {
             $$ = $1;
-            std::cout << "test star_COMMA_test COMMA -> testlist" << std::endl;
+            printDebugMsg("test star_COMMA_test COMMA -> testlist");
         }
 	| test star_COMMA_test
         {
             $$ = $1;
-            std::cout << "test star_COMMA_test -> testlist" << std::endl;
+            printDebugMsg("test star_COMMA_test -> testlist");
         }
 	;
 dictorsetmaker // Used in: opt_dictorsetmaker
@@ -1057,3 +1073,7 @@ void deleteName(char *name) {
     name = NULL;
 }
 
+void printDebugMsg(const char *msg) {
+  if (myDebug)
+     std::cout << msg << std::endl;
+}
