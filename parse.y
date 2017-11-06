@@ -9,7 +9,7 @@
         // extern YYSTYPE yylval;
         void deleteName(char *name);
         PoolOfNodes& pool = PoolOfNodes::getInstance();
-        bool myDebug = true;
+        bool myDebug = false;
         void printDebugMsg(const char *);
 %}
 
@@ -36,7 +36,7 @@
 %token AMPEREQUAL AMPERSAND AND AS ASSERT AT BACKQUOTE BAR BREAK CIRCUMFLEX
 %token CIRCUMFLEXEQUAL CLASS COLON COMMA CONTINUE DEDENT DEF DEL DOT DOUBLESLASH
 %token DOUBLESLASHEQUAL DOUBLESTAR DOUBLESTAREQUAL ELIF ELSE ENDMARKER EQEQUAL
-%token EQUAL EXCEPT EXEC FINALLY FOR FROM GLOBAL GREATER GREATEREQUAL GRLT
+%token  EXCEPT EXEC FINALLY FOR FROM GLOBAL GREATER GREATEREQUAL GRLT
 %token IF IMPORT IN INDENT IS LAMBDA LBRACE LEFTSHIFT LEFTSHIFTEQUAL LESS
 %token LESSEQUAL LPAR LSQB MINEQUAL NEWLINE NOT NOTEQUAL NUMBER MINUS
 %token OR PLUS PASS PERCENT PERCENTEQUAL PLUSEQUAL PRINT RAISE RBRACE RETURN
@@ -52,10 +52,10 @@
 %type<node> arith_expr atom power factor term shift_expr and_expr xor_expr expr
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
 %type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
-%type<node> stmt print_stmt opt_test opt_yield_test pick_yield_expr_testlist_comp
-%token<fltNumber> FLOATNUMBER 
+%type<node> stmt print_stmt opt_test opt_yield_test pick_yield_expr_testlist_comp star_EQUAL_R
+%token<fltNumber> FLOATNUMBER
 %token<intNumber> INTNUMBER
-
+%right EQUAL
 %%
 
 start
@@ -255,9 +255,10 @@ expr_stmt // Used in: small_stmt
               }*/
             printDebugMsg("testlist augassign pick_yield_expr_testlist -> expr_stmt");
         }
-	| testlist star_EQUAL
+        | testlist star_EQUAL
         {
-	    if ($2 == NULL) {
+            $$ = $1;
+            if ($2 == NULL) {
 	      $$ = $1;
               printDebugMsg("---------testlist star_EQUAL---------");
 	      ($$)->eval()->print();
@@ -282,8 +283,8 @@ pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
             printDebugMsg("testlist -> pick_yield_expr_testlist");
         }
 	;
-star_EQUAL // Used in: expr_stmt, star_EQUAL
-	: star_EQUAL EQUAL pick_yield_expr_testlist
+/*star_EQUAL // Used in: expr_stmt, star_EQUAL
+	: star_EQUAL EQUAL  pick_yield_expr_testlist
         {
           if ($1 == NULL) {
 	    $$ = $3;
@@ -295,14 +296,39 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
 	      $$ = new AsgBinaryNode($1, $3);
 	      pool.add($$);
           }
-          printDebugMsg("star_EQUAL EQUAL pick_yield_expr_testlist -> star_EQUAL");  
+          printDebugMsg("star_EQUAL EQUAL pick_yield_expr_testlist -> star_EQUAL");
         }
 	| %empty
         {
             $$ = NULL;
             printDebugMsg("  -> star_EQUAL");
         }
+	; */
+
+star_EQUAL
+        : star_EQUAL_R
+        {
+            $$ = $1;
+            printDebugMsg("star_EQUAL_R -> star_EQUAL");
+        }
+star_EQUAL_R // Used in: expr_stmt, star_EQUAL
+	: EQUAL pick_yield_expr_testlist star_EQUAL_R
+        {
+            if ($3 == NULL) {
+                $$ = new AsgBinaryNode($$, $2);
+            } else {
+                $$ = new AsgBinaryNode($2, $3);
+            }
+            pool.add($$);
+            printDebugMsg("EQUAL pick_yield_expr_testlist star_EQUAL_R -> star_EQUAL");
+        }
+        | %empty
+        {
+            $$ = NULL;
+            printDebugMsg(" -> star_EQUAL_R");
+        }
 	;
+
 augassign // Used in: expr_stmt
 	: PLUSEQUAL
 	{
