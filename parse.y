@@ -9,7 +9,7 @@
         // extern YYSTYPE yylval;
         void deleteName(char *name);
         PoolOfNodes& pool = PoolOfNodes::getInstance();
-        bool myDebug = false;
+        bool myDebug = true;
         void printDebugMsg(const char *);
 %}
 
@@ -287,7 +287,11 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
         {
           if ($1 == NULL) {
 	    $$ = $3;
+            printDebugMsg("-=-=-=---------------------1--");
+            //($$)->eval()->print();
           } else {
+              printDebugMsg("-=-=-=--------------------2---");
+              //($$)->eval()->print();
 	      $$ = new AsgBinaryNode($1, $3);
 	      pool.add($$);
           }
@@ -1048,7 +1052,9 @@ testlist1 // Used in: atom, testlist1
 	;
 yield_expr // Used in: pick_yield_expr_testlist, yield_stmt, pick_yield_expr_testlist_comp
 	: YIELD testlist
+	{ printDebugMsg("YIELD testlist -> yield_expr"); }
 	| YIELD
+        { printDebugMsg("YIELD -> yield_expr"); }
 	;
 star_DOT // Used in: pick_dotted_name, star_DOT
 	: star_DOT DOT
