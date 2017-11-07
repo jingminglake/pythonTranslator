@@ -13,7 +13,6 @@ extern void yyerror(const char*);
 extern void yyerror(const char*, const char);
 
 void freeAST(Node*);
-
 class IdentNode : public Node {
 public:
   IdentNode(const std::string id) : Node(), ident(id) { } 

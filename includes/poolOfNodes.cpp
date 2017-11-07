@@ -10,4 +10,5 @@ void PoolOfNodes::drainThePool() {
   for ( const Node* node : nodePool ) {
     delete node;
   }
+  nodePool.clear();
 }

@@ -101,7 +101,7 @@ decorated // Used in: compound_stmt
 	| decorators funcdef
 	;
 funcdef // Used in: decorated, compound_stmt
-        : DEF NAME parameters COLON  suite
+        : DEF NAME parameters COLON suite
 	{ deleteName($2); }
 	;
 parameters // Used in: funcdef
@@ -258,7 +258,6 @@ expr_stmt // Used in: small_stmt
         }
         | testlist star_EQUAL
         {
-            $$ = $1;
             if ($2 == NULL) {
 	      $$ = $1;
               printDebugMsg("---------testlist star_EQUAL---------");

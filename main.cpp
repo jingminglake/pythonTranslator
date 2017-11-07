@@ -54,6 +54,7 @@ int main(int argc, char * argv[]) {
   yydebug = 0;  /* Change to 1 if you want debugging */
   int parse_had_errors = yyparse();
   PoolOfNodes::getInstance().drainThePool();
+  SymbolTable::getInstance().drainSymbolTable();
   after_scanner();
   fclose(input_file);
   if (parse_had_errors) {
