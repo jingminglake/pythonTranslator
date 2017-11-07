@@ -102,6 +102,7 @@ decorated // Used in: compound_stmt
 	;
 funcdef // Used in: decorated, compound_stmt
         : DEF NAME parameters COLON  suite
+	{ deleteName($2); }
 	;
 parameters // Used in: funcdef
 	: LPAR varargslist RPAR
@@ -318,8 +319,8 @@ star_EQUAL_R // Used in: expr_stmt, star_EQUAL
                 $$ = $2;
             } else {
                 $$ = new AsgBinaryNode($2, $3);
+                pool.add($$);
             }
-            pool.add($$);
             printDebugMsg("EQUAL pick_yield_expr_testlist star_EQUAL_R -> star_EQUAL");
         }
         | %empty
@@ -736,7 +737,7 @@ arith_expr // Used in: shift_expr, arith_expr
 	: term
         {
             $$ = $1;
-           printDebugMsg("term -> arith_expr");
+            printDebugMsg("term -> arith_expr");
         }
 	| arith_expr pick_PLUS_MINUS term
         {
@@ -1014,7 +1015,9 @@ pick_for_test // Used in: dictorsetmaker
 	;
 classdef // Used in: decorated, compound_stmt
         : CLASS NAME LPAR opt_testlist RPAR COLON suite
+	{ deleteName($2); }
 	| CLASS NAME COLON suite
+        { deleteName($2); }
 	;
 opt_testlist // Used in: classdef
 	: testlist
