@@ -33,6 +33,7 @@ AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
   const Literal* res = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
   SymbolTable::getInstance().setValue(n, res);
+  //SymbolTable::getInstance().getValue(n)->eval()->print();
 }
 
 
@@ -46,7 +47,7 @@ const Literal* AsgBinaryNode::eval() const {
   return res;
 }
 
-PlusasgBinaryNode::PlusasgBinaryNode(Node* left, Node* right) : 
+PlusAsgBinaryNode::PlusAsgBinaryNode(Node* left, Node* right) : 
   BinaryNode(left, right) { 
   const Literal* augVal = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
@@ -64,7 +65,7 @@ PlusasgBinaryNode::PlusasgBinaryNode(Node* left, Node* right) :
   //res->eval()->print();
 }
 
-const Literal* PlusasgBinaryNode::eval() const { 
+const Literal* PlusAsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw "error";
   }
@@ -85,7 +86,7 @@ const Literal* PlusasgBinaryNode::eval() const {
   return res;
 }
 
-MinasgBinaryNode::MinasgBinaryNode(Node* left, Node* right) : 
+MinAsgBinaryNode::MinAsgBinaryNode(Node* left, Node* right) : 
   BinaryNode(left, right) { 
   const Literal* augVal = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
@@ -100,7 +101,7 @@ MinasgBinaryNode::MinasgBinaryNode(Node* left, Node* right) :
   SymbolTable::getInstance().setValue(n, res);
 }
 
-const Literal* MinasgBinaryNode::eval() const { 
+const Literal* MinAsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw "error";
   }
@@ -118,7 +119,7 @@ const Literal* MinasgBinaryNode::eval() const {
   return res;
 }
 
-StarasgBinaryNode::StarasgBinaryNode(Node* left, Node* right) : 
+StarAsgBinaryNode::StarAsgBinaryNode(Node* left, Node* right) : 
   BinaryNode(left, right) { 
   const Literal* augVal = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
@@ -133,7 +134,7 @@ StarasgBinaryNode::StarasgBinaryNode(Node* left, Node* right) :
   SymbolTable::getInstance().setValue(n, res);
 }
 
-const Literal* StarasgBinaryNode::eval() const { 
+const Literal* StarAsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw "error";
   }
@@ -151,7 +152,7 @@ const Literal* StarasgBinaryNode::eval() const {
   return res;
 }
 
-SlashasgBinaryNode::SlashasgBinaryNode(Node* left, Node* right) : 
+SlashAsgBinaryNode::SlashAsgBinaryNode(Node* left, Node* right) : 
   BinaryNode(left, right) { 
   const Literal* augVal = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
@@ -166,7 +167,7 @@ SlashasgBinaryNode::SlashasgBinaryNode(Node* left, Node* right) :
   SymbolTable::getInstance().setValue(n, res);
 }
 
-const Literal* SlashasgBinaryNode::eval() const { 
+const Literal* SlashAsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw "error";
   }
@@ -184,7 +185,40 @@ const Literal* SlashasgBinaryNode::eval() const {
   return res;
 }
 
-DoubleStartasgBinaryNode::DoubleStartasgBinaryNode(Node* left, Node* right) : 
+DoubleSlashAsgBinaryNode::DoubleSlashAsgBinaryNode(Node* left, Node* right) : 
+  BinaryNode(left, right) { 
+  const Literal* augVal = right->eval();
+  const std::string n = static_cast<IdentNode*>(left)->getIdent();
+  const Literal* oldValue = NULL;
+  try {
+      oldValue = SymbolTable::getInstance().getValue(n);
+  } catch(const std::string& msg) {
+      std::cout << msg << std::endl;
+      exit(-1);
+  }
+  const Literal* res = (*oldValue).opDoubleDiv(*augVal);
+  SymbolTable::getInstance().setValue(n, res);
+}
+
+const Literal* DoubleSlashAsgBinaryNode::eval() const { 
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* augVal = right->eval();
+  const std::string n = static_cast<IdentNode*>(left)->getIdent();
+  const Literal* oldValue = NULL;
+  try {
+      oldValue = SymbolTable::getInstance().getValue(n);
+  } catch(const std::string& msg) {
+      std::cout << msg << std::endl;
+      exit(-1);
+  }
+  const Literal* res = (*oldValue).opDoubleDiv(*augVal);
+  SymbolTable::getInstance().setValue(n, res);
+  return res;
+}
+
+DoubleStarAsgBinaryNode::DoubleStarAsgBinaryNode(Node* left, Node* right) : 
   BinaryNode(left, right) { 
   const Literal* augVal = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
@@ -199,7 +233,7 @@ DoubleStartasgBinaryNode::DoubleStartasgBinaryNode(Node* left, Node* right) :
   SymbolTable::getInstance().setValue(n, res);
 }
 
-const Literal* DoubleStartasgBinaryNode::eval() const { 
+const Literal* DoubleStarAsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw "error";
   }
@@ -217,7 +251,7 @@ const Literal* DoubleStartasgBinaryNode::eval() const {
   return res;
 }
 
-PercentStartasgBinaryNode::PercentStartasgBinaryNode(Node* left, Node* right) : 
+PercentAsgBinaryNode::PercentAsgBinaryNode(Node* left, Node* right) : 
   BinaryNode(left, right) { 
   const Literal* augVal = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
@@ -232,7 +266,7 @@ PercentStartasgBinaryNode::PercentStartasgBinaryNode(Node* left, Node* right) :
   SymbolTable::getInstance().setValue(n, res);
 }
 
-const Literal* PercentStartasgBinaryNode::eval() const { 
+const Literal* PercentAsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw "error";
   }
@@ -284,6 +318,15 @@ const Literal* DivBinaryNode::eval() const {
   const Literal* x = left->eval();
   const Literal* y = right->eval();
   return ((*x)/(*y));
+}
+
+const Literal* FloorDivBinaryNode::eval() const { 
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* x = left->eval();
+  const Literal* y = right->eval();
+  return ((*x).opDoubleDiv(*y));
 }
 
 const Literal* ModBinaryNode::eval() const { 

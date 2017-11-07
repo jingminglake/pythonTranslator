@@ -27,7 +27,7 @@
 %union {
   Node* node;
   int intNumber;
-  float fltNumber;
+  long double fltNumber;
   char *id;
   int tokenId;
 }
@@ -223,31 +223,31 @@ expr_stmt // Used in: small_stmt
         {
             switch($2) {
               case PLUSEQUAL:
-		  $$ = new PlusasgBinaryNode($1, $3);
+		  $$ = new PlusAsgBinaryNode($1, $3);
                   pool.add($$);
                   break;
               case MINEQUAL:
-		  $$ = new MinasgBinaryNode($1, $3);
+		  $$ = new MinAsgBinaryNode($1, $3);
                   pool.add($$);
                   break;
               case STAREQUAL:
-		  $$ = new StarasgBinaryNode($1, $3);
+		  $$ = new StarAsgBinaryNode($1, $3);
                   pool.add($$);
                   break;
               case SLASHEQUAL:
-                  $$ = new SlashasgBinaryNode($1, $3);
+                  $$ = new SlashAsgBinaryNode($1, $3);
                   pool.add($$);
                   break;
               case DOUBLESLASHEQUAL:
-                  $$ = new SlashasgBinaryNode($1, $3);
+                  $$ = new DoubleSlashAsgBinaryNode($1, $3);
                   pool.add($$);
                   break;
               case DOUBLESTAREQUAL:
-                  $$ = new DoubleStartasgBinaryNode($1, $3);
+                  $$ = new DoubleStarAsgBinaryNode($1, $3);
                   pool.add($$);
                   break;
               case PERCENTEQUAL:
-                  $$ = new PercentStartasgBinaryNode($1, $3);
+                  $$ = new PercentAsgBinaryNode($1, $3);
                   pool.add($$);
                   break;
             }
@@ -311,6 +311,7 @@ star_EQUAL
             $$ = $1;
             printDebugMsg("star_EQUAL_R -> star_EQUAL");
         }
+        ;
 star_EQUAL_R // Used in: expr_stmt, star_EQUAL
 	: EQUAL pick_yield_expr_testlist star_EQUAL_R
         {
@@ -772,10 +773,13 @@ term // Used in: arith_expr, term
 	  if ($2 == STAR) {
 	    $$ = new MulBinaryNode($1, $3);
             pool.add($$);
-          } else if ($2 == SLASH || $2 == DOUBLESLASH) {
+          } else if ($2 == SLASH) {
 	    $$ = new DivBinaryNode($1, $3);
             pool.add($$);
-	  } else if ($2 == PERCENT) {
+	  } else if ($2 == DOUBLESLASH) {
+            $$ = new FloorDivBinaryNode($1, $3);
+            pool.add($$);
+          } else if ($2 == PERCENT) {
             $$ = new ModBinaryNode($1, $3);
             pool.add($$);
           }      
@@ -853,7 +857,7 @@ atom // Used in: power
 	: LPAR opt_yield_test RPAR
 	{
             $$ = $2;
-	    std::cout << "LPAR opt_yield_test RPAR -> atom" << std::endl;
+	    printDebugMsg("LPAR opt_yield_test RPAR -> atom");
         }
 	| LSQB opt_listmaker RSQB
 	{ $$ = NULL; }

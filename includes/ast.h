@@ -60,39 +60,45 @@ public:
   virtual const Literal* eval() const;
 };
 
-class PlusasgBinaryNode : public BinaryNode {
+class PlusAsgBinaryNode : public BinaryNode {
 public:
-  PlusasgBinaryNode(Node* left, Node* right);
+  PlusAsgBinaryNode(Node* left, Node* right);
   virtual const Literal* eval() const;
 };
 
-class MinasgBinaryNode : public BinaryNode {
+class MinAsgBinaryNode : public BinaryNode {
 public:
-  MinasgBinaryNode(Node* left, Node* right);
+  MinAsgBinaryNode(Node* left, Node* right);
   virtual const Literal* eval() const;
 };
 
-class StarasgBinaryNode : public BinaryNode {
+class StarAsgBinaryNode : public BinaryNode {
 public:
-  StarasgBinaryNode(Node* left, Node* right);
+  StarAsgBinaryNode(Node* left, Node* right);
   virtual const Literal* eval() const;
 };
 
-class SlashasgBinaryNode : public BinaryNode {
+class SlashAsgBinaryNode : public BinaryNode {
 public:
-  SlashasgBinaryNode(Node* left, Node* right);
+  SlashAsgBinaryNode(Node* left, Node* right);
   virtual const Literal* eval() const;
 };
 
-class DoubleStartasgBinaryNode : public BinaryNode {
+class DoubleSlashAsgBinaryNode : public BinaryNode {
 public:
-  DoubleStartasgBinaryNode(Node* left, Node* right);
+  DoubleSlashAsgBinaryNode(Node* left, Node* right);
   virtual const Literal* eval() const;
 };
 
-class PercentStartasgBinaryNode : public BinaryNode {
+class DoubleStarAsgBinaryNode : public BinaryNode {
 public:
-  PercentStartasgBinaryNode(Node* left, Node* right);
+  DoubleStarAsgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
+class PercentAsgBinaryNode : public BinaryNode {
+public:
+  PercentAsgBinaryNode(Node* left, Node* right);
   virtual const Literal* eval() const;
 };
 
@@ -117,6 +123,12 @@ public:
 class DivBinaryNode : public BinaryNode {
 public:
   DivBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
+  virtual const Literal* eval() const;
+};
+
+class FloorDivBinaryNode : public BinaryNode {
+public:
+  FloorDivBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
   virtual const Literal* eval() const;
 };
 

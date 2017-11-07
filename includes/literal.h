@@ -23,6 +23,10 @@ public:
   virtual const Literal* operator/(const Literal& rhs) const = 0;
   virtual const Literal* opDiv(long double) const = 0;
   virtual const Literal* opDiv(int) const = 0;
+ 
+  virtual const Literal* opDoubleDiv(const Literal& rhs) const = 0;
+  virtual const Literal* op2Div(long double) const = 0;
+  virtual const Literal* op2Div(int) const = 0;
 
   virtual const Literal* operator%(const Literal& rhs) const = 0;
   virtual const Literal* opMod(long double) const = 0;
@@ -101,7 +105,31 @@ public:
     return node;
   }
 
- virtual const Literal* operator%(const Literal& rhs) const  {
+  virtual const Literal* opDoubleDiv(const Literal& rhs) const  {
+    return rhs.op2Div(val);
+  }
+  virtual const Literal* op2Div(long double lhs) const  {
+    if ( val == 0 ) throw std::string("Zero Division Error");
+    long double res = static_cast<long double>(static_cast<int>(lhs / val));
+    long double m = fmod(lhs, val);
+    if (((lhs < 0) ^ (val < 0)) && m != 0)
+	res -= 1;
+    const Literal* node = new FloatLiteral(res);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+  virtual const Literal* op2Div(int lhs) const  {
+    if ( val == 0 ) throw std::string("Zero Division Error");
+    long double res = static_cast<long double>(static_cast<int>(lhs / val));
+    long double m = fmod(lhs, val);
+    if (((lhs < 0) ^ (val < 0)) && m != 0)
+	res -= 1;
+    const Literal* node = new FloatLiteral(res);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator%(const Literal& rhs) const  {
     return rhs.opMod(val);
   }
   virtual const Literal* opMod(long double lhs) const  {
@@ -150,12 +178,12 @@ public:
 
   virtual const Literal* eval() const { return this; }
   virtual void print() const {
-      std::cout << "FLOAT: ";
+    //std::cout << "FLOAT: ";
       if  (val == (int)val) {
           std::cout << val << ".0" << std::endl;
       } else {
-      std::cout << std::setprecision(16) << val << std::endl;
-      //printf("FLOAT: %.16Lg\n", val);
+	//std::cout << std::setprecision(16) << val << std::endl;
+        printf("%.16Lg\n", val);
       }
   }
 private:
@@ -188,7 +216,7 @@ public:
     PoolOfNodes::getInstance().add(node);
     return node;
   }
-  virtual const Literal* opSubt(int lhs) const  {
+  virtual const Literal* opSubt(int lhs) const {
     const Literal* node = new IntLiteral(lhs - val);
     PoolOfNodes::getInstance().add(node);
     return node;
@@ -242,6 +270,30 @@ public:
     return node;
   }
 
+  virtual const Literal* opDoubleDiv(const Literal& rhs) const  {
+    return rhs.op2Div(val);
+  }
+  virtual const Literal* op2Div(long double lhs) const  {
+    if ( val == 0 ) throw std::string("Zero Division Error");
+    long double res = static_cast<long double>(static_cast<int>(lhs / val));
+    long double m = fmod(lhs, val);
+    if (((lhs < 0) ^ (val < 0)) && m != 0)
+	res -= 1;
+    const Literal* node = new FloatLiteral(res);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+  virtual const Literal* op2Div(int lhs) const  {
+    if ( val == 0 ) throw std::string("Zero Division Error");
+    int res = lhs / val;
+    int m = lhs % val;
+    if (((lhs < 0) ^ (val < 0)) && m != 0)
+	res -= 1;
+    const Literal* node = new IntLiteral(res);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
   virtual const Literal* operator%(const Literal& rhs) const  {
     return rhs.opMod(val);
   }
@@ -253,7 +305,7 @@ public:
   }
   virtual const Literal* opMod(int lhs) const  {
     if ( val == 0 ) throw std::string("Zero Mod Error");
-    const Literal* node = new IntLiteral(lhs % val);
+    const Literal* node = new IntLiteral(((lhs % val) + val) % val);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -288,7 +340,8 @@ public:
 
   virtual const Literal* eval() const { return this; }
   virtual void print() const {
-    std::cout << "INT: " << val << std::endl;
+    //std::cout << "INT: " << val << std::endl;
+    std::cout << val << std::endl;
   }
 private:
   int val;
