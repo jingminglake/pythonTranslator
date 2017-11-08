@@ -26,7 +26,7 @@
 
 %union {
   Node* node;
-  int intNumber;
+  long long intNumber;
   long double fltNumber;
   char *id;
   int tokenId;
@@ -200,7 +200,7 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
         {
            $$ = $1;
 	   printDebugMsg("---------print_stmt---------");
-	   ($$)->eval()->print();
+	   ($$)->eval()->printStmt();
 	   printDebugMsg("---------print_stmt---------");
         }
 	| del_stmt
