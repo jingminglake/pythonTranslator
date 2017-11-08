@@ -55,8 +55,8 @@ int main(int argc, char * argv[]) {
   int parse_had_errors = yyparse();
   PoolOfNodes::getInstance().drainThePool();
   SymbolTable::getInstance().drainSymbolTable();
-  after_scanner();
   fclose(input_file);
+  after_scanner();
   if (parse_had_errors) {
     fprintf(stderr,"Abnormal termination\n");
   }

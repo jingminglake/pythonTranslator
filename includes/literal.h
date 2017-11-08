@@ -137,13 +137,13 @@ public:
   }
   virtual const Literal* opMod(long double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Mod Error");
-    const Literal* node = new FloatLiteral(fmod(lhs, val));
+    const Literal* node = new FloatLiteral(fmod((fmod(lhs, val) + val) , val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
   virtual const Literal* opMod(long long lhs) const  {
     if ( val == 0 ) throw std::string("Zero Mod Error");
-    const Literal* node = new FloatLiteral(fmod(lhs, val));
+    const Literal* node = new FloatLiteral(fmod((fmod(lhs, val) + val) , val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -154,21 +154,13 @@ public:
   }
 
   virtual const Literal* opPow(long double lhs) const {
-    long double res = 0.0;
-    if (lhs != 0) {
-      res = pow(lhs, val);
-    }
-    const Literal* node = new FloatLiteral(res);
+    const Literal* node = new FloatLiteral(pow(lhs, val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
 
   virtual const Literal* opPow(long long lhs) const {
-    long double res = 0.0;
-    if (lhs != 0) {
-      res = pow(lhs, val);
-    }
-    const Literal* node = new FloatLiteral(res);
+    const Literal* node = new FloatLiteral(pow(lhs, val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -190,8 +182,8 @@ public:
       }
   }
   virtual void printStmt() const {
-    //std::cout << "FLOAT: ";
-     if  (fmod(val, 1.0) == 0) {
+     //std::cout << "FLOAT: ";
+     if  (fmod(val, 1.0) == 0 && val < 1e+16) {
           std::cout << val << ".0" << std::endl;
      } else {
        std::cout << std::setprecision(12) << val << std::endl;
@@ -310,7 +302,7 @@ public:
   }
   virtual const Literal* opMod(long double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Mod Error");
-    const Literal* node = new FloatLiteral(fmod(lhs, val));
+    const Literal* node = new FloatLiteral(fmod((fmod(lhs, val) + val) , val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -325,20 +317,12 @@ public:
     return rhs.opPow(val);
   }
   virtual const Literal* opPow(long double lhs) const {
-    long double res = 0.0;
-    if (lhs != 0) {
-      res = pow(lhs, val);
-    }
-    const Literal* node = new FloatLiteral(res);
+    const Literal* node = new FloatLiteral(pow(lhs, val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
   virtual const Literal* opPow(long long lhs) const {
-    long long res = 0;
-    if (lhs != 0) {
-        res = pow(lhs, val);
-    }
-    const Literal* node = new IntLiteral(res);
+    const Literal* node = new IntLiteral(pow(lhs, val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
