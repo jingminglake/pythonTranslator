@@ -2,7 +2,6 @@
 #include "poolOfNodes.h"
 #include <cmath>
 #include <cstdio>
-#include <sstream>
 #include <iomanip>
 
 class Literal : public Node {
@@ -186,8 +185,8 @@ public:
      if  (fmod(val, 1.0) == 0) {
           std::cout << val << ".0" << std::endl;
       } else {
-	//std::cout << std::setprecision(16) << val << std::endl;
-        printf("%.16Lg\n", val);
+	std::cout << std::setprecision(16) << val << std::endl;
+        //printf("%.16Lg\n", val);
       }
   }
   virtual void printStmt() const {
@@ -195,15 +194,7 @@ public:
      if  (fmod(val, 1.0) == 0) {
           std::cout << val << ".0" << std::endl;
      } else {
-       int n = 12;
-       int d = (int)::ceil(::log10(val < 0 ? -val : val)); /*digits before decimal point*/
-       //long double order = ::pow(10., n - d);
-       //std::cout << "n-->" << n << "d-->" << d << std::endl;
-       //std::stringstream ss;
-       //ss << std::setprecision(n - d) << std::round(val * order) / order;
-       //std::cout << ss.str() << std::endl;
-       //std::cout << std::setprecision(9) << val << std::endl;
-       printf("%.12Lg\n", val);
+       std::cout << std::setprecision(12) << val << std::endl;
      }
   }
 private:
