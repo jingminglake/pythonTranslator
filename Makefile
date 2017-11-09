@@ -45,3 +45,4 @@ clean:
 	rm -f cases/*.out
 	rm -f *.*~
 	rm -f *~
+	rm -f cases/*.*~
