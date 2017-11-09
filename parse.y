@@ -48,7 +48,7 @@
 %start start
 %locations
 
-%type<tokenId> pick_PLUS_MINUS pick_multop pick_unop augassign
+%type<tokenId> pick_PLUS_MINUS pick_multop pick_unop augassign pick_LEFTSHIFT_RIGHTSHIFT
 %type<node> arith_expr atom power factor term shift_expr and_expr xor_expr expr
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
 %type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
@@ -200,7 +200,8 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
         {
            $$ = $1;
 	   printDebugMsg("---------print_stmt---------");
-	   ($$)->eval()->printStmt();
+           if (($$)->eval())
+	     ($$)->eval()->printStmt();
 	   printDebugMsg("---------print_stmt---------");
         }
 	| del_stmt
@@ -250,6 +251,26 @@ expr_stmt // Used in: small_stmt
                   $$ = new PercentAsgBinaryNode($1, $3);
                   pool.add($$);
                   break;
+              case LEFTSHIFTEQUAL:
+                  $$ = new LShiftAsgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
+              case RIGHTSHIFTEQUAL:
+                  $$ = new RShiftAsgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
+              case AMPEREQUAL:
+                  $$ = new AmperAsgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
+              case VBAREQUAL:
+                  $$ = new VBarAsgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
+              case CIRCUMFLEXEQUAL:
+                  $$ = new CircumflexAsgBinaryNode($1, $3);
+                  pool.add($$);
+                  break;
             }
             /*if ($3 == NULL) {
 	      $$ = $1;
@@ -261,7 +282,8 @@ expr_stmt // Used in: small_stmt
             if ($2 == NULL) {
 	      $$ = $1;
               printDebugMsg("---------testlist star_EQUAL---------");
-	      ($$)->eval()->print();
+              if (($$)->eval())
+	        ($$)->eval()->print();
 	      printDebugMsg("---------testlist star_EQUAL---------");
             }
             else {
@@ -361,6 +383,7 @@ augassign // Used in: expr_stmt
         }
 	| CIRCUMFLEXEQUAL
         {
+           // ^|
            $$ = CIRCUMFLEXEQUAL;
         }
 	| LEFTSHIFTEQUAL
@@ -698,6 +721,8 @@ expr // Used in: exec_stmt, with_item, comparison, expr, exprlist, star_COMMA_ex
         }
 	| expr BAR xor_expr
         {
+            $$ = new BarBinaryNode($1, $3);
+            pool.add($$);
             printDebugMsg("expr BAR xor_expr -> expr");
         }
 	;
@@ -707,7 +732,11 @@ xor_expr // Used in: expr, xor_expr
             $$ = $1;
             printDebugMsg("and_expr -> xor_expr"); }
 	| xor_expr CIRCUMFLEX and_expr
-        { printDebugMsg(" xor_expr CIRCUMFLEX and_expr -> xor_expr"); }
+        {
+            $$ =  new CircumflexBinaryNode($1, $3); 
+            pool.add($$);
+            printDebugMsg(" xor_expr CIRCUMFLEX and_expr -> xor_expr"); 
+        }
 	;
 and_expr // Used in: xor_expr, and_expr
 	: shift_expr
@@ -717,6 +746,8 @@ and_expr // Used in: xor_expr, and_expr
         }
 	| and_expr AMPERSAND shift_expr
         {
+	    $$ = new AmpersandBinaryNode($1, $3);
+            pool.add($$);
             printDebugMsg("and_expr AMPERSAND shift_expr -> and_expr");
         }
 	;
@@ -727,11 +758,22 @@ shift_expr // Used in: and_expr, shift_expr
             printDebugMsg("arith_expr -> shift_expr");
         }
 	| shift_expr pick_LEFTSHIFT_RIGHTSHIFT arith_expr
-        { printDebugMsg("shift_expr pick_LEFTSHIFT_RIGHTSHIFT arith_expr -> shift_expr"); }
+        { 
+            if ($2 == LEFTSHIFT) {
+		$$ = new LeftShiftBinaryNode($1, $3);
+                pool.add($$);
+            } else if ($2 == RIGHTSHIFT){
+                $$ = new RightShiftBinaryNode($1, $3);
+                pool.add($$);
+            }
+            printDebugMsg("shift_expr pick_LEFTSHIFT_RIGHTSHIFT arith_expr -> shift_expr"); 
+        }
 	;
 pick_LEFTSHIFT_RIGHTSHIFT // Used in: shift_expr
 	: LEFTSHIFT
+	{ $$ = LEFTSHIFT; }
 	| RIGHTSHIFT
+	{ $$ = RIGHTSHIFT; }
 	;
 arith_expr // Used in: shift_expr, arith_expr
 	: term
@@ -800,9 +842,9 @@ pick_multop // Used in: term
             $$ = PERCENT;
         }
 	| DOUBLESLASH
-         { 
-	     $$ = DOUBLESLASH;
-         }
+	{ 
+	    $$ = DOUBLESLASH;
+	}
 	;
 factor // Used in: term, factor, power
 	: pick_unop factor
@@ -810,7 +852,10 @@ factor // Used in: term, factor, power
             if ($1 == MINUS) {
 		$$ = new MinusUnaryNode($2);
 		pool.add($$);
-            } else {
+            } else if ($1 == TILDE) {
+                $$ = new TildeUnaryNode($2);
+		pool.add($$);
+            } else if ($1 == PLUS){
 		$$ = $2;
             }
             printDebugMsg("pick_unop factor -> factor");

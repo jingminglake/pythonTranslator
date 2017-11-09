@@ -41,6 +41,12 @@ public:
   virtual const Literal* eval() const;
 };
 
+class TildeUnaryNode : public UnaryNode {
+public:
+  TildeUnaryNode(Node *n) : UnaryNode(n) {}
+  virtual const Literal* eval() const;
+};
+
 class BinaryNode : public Node {
 public:
   BinaryNode(Node* l, Node* r) : Node(), left(l), right(r) {}
@@ -102,6 +108,36 @@ public:
   virtual const Literal* eval() const;
 };
 
+class LShiftAsgBinaryNode : public BinaryNode {
+public:
+  LShiftAsgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
+class RShiftAsgBinaryNode : public BinaryNode {
+public:
+  RShiftAsgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
+class AmperAsgBinaryNode : public BinaryNode {
+public:
+  AmperAsgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
+class VBarAsgBinaryNode : public BinaryNode {
+public:
+  VBarAsgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
+class CircumflexAsgBinaryNode : public BinaryNode {
+public:
+  CircumflexAsgBinaryNode(Node* left, Node* right);
+  virtual const Literal* eval() const;
+};
+
 class AddBinaryNode : public BinaryNode {
 public:
   AddBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
@@ -141,5 +177,35 @@ public:
 class PowBinaryNode : public BinaryNode {
 public:
   PowBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
+  virtual const Literal* eval() const;
+};
+
+class LeftShiftBinaryNode : public BinaryNode {
+public:
+  LeftShiftBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
+  virtual const Literal* eval() const;
+};
+
+class RightShiftBinaryNode : public BinaryNode {
+public:
+  RightShiftBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
+  virtual const Literal* eval() const;
+};
+
+class AmpersandBinaryNode : public BinaryNode {
+public:
+  AmpersandBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
+  virtual const Literal* eval() const;
+};
+
+class BarBinaryNode : public BinaryNode {
+public:
+  BarBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
+  virtual const Literal* eval() const;
+};
+
+class CircumflexBinaryNode : public BinaryNode {
+public:
+  CircumflexBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
   virtual const Literal* eval() const;
 };

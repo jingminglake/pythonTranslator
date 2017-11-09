@@ -36,7 +36,28 @@ public:
   virtual const Literal* opPow(long double) const = 0;
   virtual const Literal* opPow(long long) const = 0;
 
+  virtual const Literal* operator<<(const Literal& rhs) const = 0;
+  virtual const Literal* opLShift(long double) const = 0;
+  virtual const Literal* opLShift(long long) const = 0;
+
+  virtual const Literal* operator>>(const Literal& rhs) const = 0;
+  virtual const Literal* opRShift(long double) const = 0;
+  virtual const Literal* opRShift(long long) const = 0;
+
+  virtual const Literal* operator&(const Literal& rhs) const = 0;
+  virtual const Literal* opAmpersand(long double) const = 0;
+  virtual const Literal* opAmpersand(long long) const = 0;
+
+  virtual const Literal* operator|(const Literal& rhs) const = 0;
+  virtual const Literal* opBar(long double) const = 0;
+  virtual const Literal* opBar(long long) const = 0;
+
+  virtual const Literal* operator^(const Literal& rhs) const = 0;
+  virtual const Literal* opCircumflex(long double) const = 0;
+  virtual const Literal* opCircumflex(long long) const = 0;
+
   virtual const Literal* opMin() const = 0;
+  virtual const Literal* operator~() const = 0;
   virtual const Literal* eval() const = 0;
   virtual void print() const {
     std::cout << "No Way" << std::endl;
@@ -164,11 +185,86 @@ public:
     PoolOfNodes::getInstance().add(node);
     return node;
   }
-  
+
+  virtual const Literal* operator<<(const Literal& rhs) const  {
+    return rhs.opLShift(val);
+  }
+  virtual const Literal* opLShift(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for <<: 'float' and 'float'");
+    return nullptr;
+  }
+  virtual const Literal* opLShift(long long lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for <<: 'int' and 'float'");
+    return nullptr;
+  }
+
+  virtual const Literal* operator>>(const Literal& rhs) const  {
+    return rhs.opRShift(val);
+  }
+  virtual const Literal* opRShift(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for >>: 'float' and 'float'");
+    return nullptr;
+  }
+  virtual const Literal* opRShift(long long lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for >>: 'int' and 'float'");
+    return nullptr;
+  }
+
+  virtual const Literal* operator&(const Literal& rhs) const  {
+    return rhs.opAmpersand(val);
+  }
+  virtual const Literal* opAmpersand(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for &: 'float' and 'float'");
+    return nullptr;
+  }
+  virtual const Literal* opAmpersand(long long lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for &: 'int' and 'float'");
+    return nullptr;
+  }
+
+  virtual const Literal* operator|(const Literal& rhs) const  {
+    return rhs.opBar(val);
+  }
+  virtual const Literal* opBar(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for |: 'float' and 'float'");
+    return nullptr;
+  }
+  virtual const Literal* opBar(long long lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for |: 'int' and 'float'");
+    return nullptr;
+  }
+
+  virtual const Literal* operator^(const Literal& rhs) const  {
+    return rhs.opCircumflex(val);
+  }
+  virtual const Literal* opCircumflex(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for ^: 'float' and 'float'");
+    return nullptr;
+  }
+  virtual const Literal* opCircumflex(long long lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for ^: 'int' and 'float'");
+    return nullptr;
+  }
+
   virtual const Literal* opMin() const {
     const Literal* node = new FloatLiteral(-val);
     PoolOfNodes::getInstance().add(node);
     return node;
+  }
+
+  virtual const Literal* operator~() const  {
+    throw std::string("TypeError: bad operand type for unary ~: 'float'");
+     return nullptr;
   }
 
   virtual const Literal* eval() const { return this; }
@@ -323,6 +419,86 @@ public:
   }
   virtual const Literal* opPow(long long lhs) const {
     const Literal* node = new IntLiteral(pow(lhs, val));
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator<<(const Literal& rhs) const  {
+    return rhs.opLShift(val);
+  }
+  virtual const Literal* opLShift(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for <<: 'float' and 'int'");
+    return nullptr;
+  }
+  virtual const Literal* opLShift(long long lhs) const  {
+    if (val < 0)
+      throw std::string("ValueError: negative shift count");
+    const Literal* node = new IntLiteral(lhs << val);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator>>(const Literal& rhs) const  {
+    return rhs.opRShift(val);
+  }
+  virtual const Literal* opRShift(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for >>: 'float' and 'int'");
+    return nullptr;
+  }
+  virtual const Literal* opRShift(long long lhs) const  {
+    if (val < 0)
+      throw std::string("ValueError: negative shift count");
+    const Literal* node = new IntLiteral(lhs >> val);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator&(const Literal& rhs) const  {
+    return rhs.opAmpersand(val);
+  }
+  virtual const Literal* opAmpersand(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for &: 'float' and 'int'");
+    return nullptr;
+  }
+  virtual const Literal* opAmpersand(long long lhs) const  {
+    const Literal* node = new IntLiteral(lhs & val);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator|(const Literal& rhs) const  {
+    return rhs.opBar(val);
+  }
+  virtual const Literal* opBar(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for |: 'float' and 'int'");
+    return nullptr;
+  }
+  virtual const Literal* opBar(long long lhs) const  {
+    const Literal* node = new IntLiteral(lhs | val);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator^(const Literal& rhs) const  {
+    return rhs.opCircumflex(val);
+  }
+  virtual const Literal* opCircumflex(long double lhs) const  {
+    lhs = 0;
+    throw std::string("TypeError: unsupported operand type(s) for ^: 'float' and 'int'");
+    return nullptr;
+  }
+  virtual const Literal* opCircumflex(long long lhs) const  {
+    const Literal* node = new IntLiteral(lhs ^ val);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator~() const  {
+    const Literal* node = new IntLiteral(~val);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
