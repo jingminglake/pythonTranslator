@@ -884,6 +884,7 @@ power // Used in: factor
 	: atom star_trailer DOUBLESTAR factor
          {
              $$ = new PowBinaryNode($1, $4);
+             pool.add($$);
              printDebugMsg("atom star_trailer DOUBLESTAR factor -> power");
          }
 	| atom star_trailer
