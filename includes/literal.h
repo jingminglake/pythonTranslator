@@ -134,11 +134,7 @@ public:
   }
   virtual const Literal* op2Div(long double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
-    long double res = static_cast<long double>(static_cast<long long>(lhs / val));
-    long double m = fmod(lhs, val);
-    if (((lhs < 0) ^ (val < 0)) && m != 0)
-	res -= 1;
-    const Literal* node = new FloatLiteral(res);
+    const Literal* node = new FloatLiteral(floor(lhs / val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -148,6 +144,8 @@ public:
     long double m = fmod(lhs, val);
     if (((lhs < 0) ^ (val < 0)) && m != 0)
 	res -= 1;
+    if (res == 0 && ((lhs < 0) ^ (val < 0)))
+        res *= -1.0;
     const Literal* node = new FloatLiteral(res);
     PoolOfNodes::getInstance().add(node);
     return node;
@@ -374,10 +372,12 @@ public:
   }
   virtual const Literal* op2Div(long double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
-    long double res = static_cast<long double>(static_cast<long long>(lhs / val));
+    long double res = static_cast<long long>(lhs / val);
     long double m = fmod(lhs, val);
     if (((lhs < 0) ^ (val < 0)) && m != 0)
 	res -= 1;
+    if (res == 0 && ((lhs < 0) ^ (val < 0)))
+        res *= -1.0;
     const Literal* node = new FloatLiteral(res);
     PoolOfNodes::getInstance().add(node);
     return node;
