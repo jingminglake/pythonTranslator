@@ -8,7 +8,7 @@ LEXFLAGS = -Wno-unused -Wno-sign-compare -Wno-deprecated-register
 LEXDEBUG =
 YACCDEBUG = -vtd
 
-OBJS = main.o parse.tab.o lex.yy.o ast.o symbolTable.o poolOfNodes.o
+OBJS = main.o parse.tab.o lex.yy.o ast.o symbolTable.o poolOfNodes.o tableManager.o
 
 run: $(OBJS)
 	$(CCC) $(CFLAGS) -o run $(OBJS)
@@ -37,6 +37,9 @@ symbolTable.o: includes/symbolTable.cpp includes/symbolTable.h includes/ast.h
 poolOfNodes.o: includes/poolOfNodes.cpp includes/poolOfNodes.h \
         includes/node.h
 	$(CCC) $(CFLAGS) -c includes/poolOfNodes.cpp
+
+tableManager.o: includes/tableManager.h includes/tableManager.cpp symbolTable.o
+	$(CCC) $(CFLAGS) -c includes/tableManager.cpp
 
 clean:
 	rm -f run *.o parse.tab.c lex.yy.c

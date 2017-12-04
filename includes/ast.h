@@ -15,12 +15,14 @@ extern void yyerror(const char*, const char);
 void freeAST(Node*);
 class IdentNode : public Node {
 public:
-  IdentNode(const std::string id) : Node(), ident(id) { } 
+ IdentNode(const std::string id) : Node(), ident(id), val(NULL) { } 
   virtual ~IdentNode() {}
   const std::string getIdent() const { return ident; }
   virtual const Literal* eval() const;
+  virtual void setValue(const Literal *);
 private:
   std::string ident;
+  const Literal* val;
 };
 
 
@@ -209,3 +211,78 @@ public:
   CircumflexBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
   virtual const Literal* eval() const;
 };
+
+class SuiteNode;
+
+class FuncDefNode : public Node {
+public:
+  FuncDefNode(const char* name, Node* suiteNode);
+  virtual const Literal* eval() const;
+private:
+  std::string funcName;
+  SuiteNode* node;
+};
+
+class PlusStmtNode : public Node {
+public:
+  PlusStmtNode() : Node() {
+     stmts.reserve(8);
+  }
+  virtual const Literal* eval() const;
+  void insertStmt(Node* n);
+private:
+  std::vector<Node*> stmts;
+};
+
+class SuiteNode : public Node {
+public:
+  SuiteNode(Node* n) : Node() {
+    /* PlusStmtNode *psn = dynamic_cast<PlusStmtNode*>(n);
+    if (psn) {
+      std::vector<Node*> nodes = psn->getStmts();
+      stmts.assign(nodes.rbegin(), nodes.rend());
+    } else {
+      stmts.push_back(n);
+      } */
+    node = n;
+  }
+  virtual const Literal* eval() const;
+private:
+  //std::vector<Node*> stmts;
+  Node *node;
+};
+
+class CallNode : public Node {
+public:
+  CallNode(const std::string& name) : Node(), callObjectName(name) {
+  };
+  virtual const Literal* eval() const;
+
+private:
+  std::string callObjectName;
+};
+
+class IfNode : public Node {
+public:
+  IfNode(){
+  }
+};
+
+
+class PrintNode : public Node {
+public:
+  PrintNode(Node* n) : node(n) {}
+  virtual const Literal* eval() const;
+private:
+  Node *node;
+};
+
+class TrailerNode : public Node {
+public:
+  TrailerNode(Node *n) : node(n){
+  }
+  virtual const Literal* eval() const;
+private:
+  Node *node;
+};
+

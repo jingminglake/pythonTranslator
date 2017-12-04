@@ -65,6 +65,9 @@ public:
   virtual void printStmt() const {
     std::cout << "No Way 2" << std::endl;
   }
+  //virtual void getVal() const {
+  //  std::cout << "No Way 3" << std::endl;
+  //}
 };
 
 class FloatLiteral: public Literal {

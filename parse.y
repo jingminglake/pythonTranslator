@@ -11,6 +11,7 @@
         PoolOfNodes& pool = PoolOfNodes::getInstance();
         bool myDebug = false;
         void printDebugMsg(const char *);
+        extern bool cmdlineMode;
 %}
 
 %code requires {
@@ -30,6 +31,7 @@
   long double fltNumber;
   char *id;
   int tokenId;
+  std::vector<Node*>* nodes;
 }
 
 // 83 tokens, in alphabetical order:
@@ -53,6 +55,10 @@
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
 %type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
 %type<node> stmt print_stmt opt_test opt_yield_test pick_yield_expr_testlist_comp star_EQUAL_R
+%type<node> compound_stmt pass_stmt flow_stmt break_stmt continue_stmt return_stmt raise_stmt yield_stmt
+%type<node> plus_stmt funcdef if_stmt suite  while_stmt for_stmt try_stmt trailer
+%type<node> opt_arglist pick_NEWLINE_stmt
+%type<nodes> star_trailer star_NEWLINE_stmt
 %token<fltNumber> FLOATNUMBER
 %token<intNumber> INTNUMBER
 %right EQUAL
@@ -64,25 +70,51 @@ start
             printDebugMsg("file_input -> start");
         }
 	;
+
 file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
         {
+            if ($1) {
+                auto it = $1->rbegin();
+                while (it != $1->rend()) {
+                    if ((*it))
+                        (*it)->eval();
+                    ++it;
+                }
+            }
+            delete $1;
             printDebugMsg("star_NEWLINE_stmt ENDMARKER -> file_input");
         }
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
         {
+            $$ = NULL;
             printDebugMsg("NEWLINE -> pick_NEWLINE_stmt");
         }
 	| stmt
         {
+            $$ = $1;
+            if (cmdlineMode && $$)
+                $$->eval();
             printDebugMsg("stmt -> pick_NEWLINE_stmt");
         }
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
 	: star_NEWLINE_stmt pick_NEWLINE_stmt
+        {
+            $$ = $1;
+            if ($2) {
+                $$->push_back($2);
+            }
+            printDebugMsg("star_NEWLINE_stmt pick_NEWLINE_stmt -> star_NEWLINE_stmt");
+        }
 	| %empty
+        {
+            $$ = new std::vector<Node*>();
+            $$->reserve(8);
+            printDebugMsg(" -> star_NEWLINE_stmt");
+        }
 	;
 decorator // Used in: decorators
 	: AT dotted_name LPAR opt_arglist RPAR NEWLINE
@@ -102,7 +134,12 @@ decorated // Used in: compound_stmt
 	;
 funcdef // Used in: decorated, compound_stmt
         : DEF NAME parameters COLON suite
-	{ deleteName($2); }
+	{
+          $$ = new FuncDefNode($2, $5);
+          pool.add($$);
+          deleteName($2);
+          printDebugMsg("DEF NAME parameters COLON suite -> funcdef");
+        }
 	;
 parameters // Used in: funcdef
 	: LPAR varargslist RPAR
@@ -165,7 +202,7 @@ stmt // Used in: pick_NEWLINE_stmt, plus_stmt
          }
 	| compound_stmt
          {
-	     $$ = NULL;
+	     $$ = $1;
              printDebugMsg("compound_stmt -> stmt");
          }
 	;
@@ -175,7 +212,7 @@ simple_stmt // Used in: stmt, suite
              $$ = $1;
              printDebugMsg("small_stmt star_SEMI_small_stmt SEMI NEWLINE -> simple_stmt");          }
 	| small_stmt star_SEMI_small_stmt NEWLINE
-         { 
+         {
 	     $$ = $1;
              printDebugMsg("small_stmt star_SEMI_small_stmt NEWLINE  -> simple_stmt");
          }
@@ -198,10 +235,11 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
         }
 	| print_stmt
         {
-           $$ = $1;
 	   printDebugMsg("---------print_stmt---------");
-           if (($$)->eval())
-	     ($$)->eval()->printStmt();
+           // if (($$)->eval())
+	   //  ($$)->eval()->printStmt();
+           $$ = new PrintNode($1);
+           pool.add($$);
 	   printDebugMsg("---------print_stmt---------");
         }
 	| del_stmt
@@ -282,8 +320,8 @@ expr_stmt // Used in: small_stmt
             if ($2 == NULL) {
 	      $$ = $1;
               printDebugMsg("---------testlist star_EQUAL---------");
-              if (($$)->eval())
-	        ($$)->eval()->print();
+              //if (($$)->eval())
+	      //  ($$)->eval()->print();
 	      printDebugMsg("---------testlist star_EQUAL---------");
             }
             else {
@@ -442,13 +480,19 @@ del_stmt // Used in: small_stmt
 	;
 pass_stmt // Used in: small_stmt
 	: PASS
+          { $$ = NULL; }
 	;
 flow_stmt // Used in: small_stmt
 	: break_stmt
+          { $$ = NULL; }
 	| continue_stmt
+          { $$ = NULL; }
 	| return_stmt
+          { $$ = $1; }
 	| raise_stmt
+          { $$ = NULL; }
 	| yield_stmt
+          { $$ = NULL; }
 	;
 break_stmt // Used in: flow_stmt
 	: BREAK
@@ -557,17 +601,36 @@ assert_stmt // Used in: small_stmt
 	;
 compound_stmt // Used in: stmt
 	: if_stmt
+          { $$ = $1; }
 	| while_stmt
-	| for_stmt
+          { $$ = NULL; }
+ 	| for_stmt
+          { $$ = NULL; }
 	| try_stmt
+          { $$ = NULL; }
 	| with_stmt
+          { $$ = NULL; }
 	| funcdef
+          {
+            printDebugMsg("funcdef -> compound_stmt");
+            $$ = $1;
+          }
 	| classdef
+          { $$ = NULL; }
 	| decorated
+          { $$ = NULL; }
 	;
 if_stmt // Used in: compound_stmt
         : IF test COLON suite star_ELIF ELSE COLON suite
+          {
+            //$$ = new IfNode($2, $4, $8);
+            //pool.add($$);
+          }
 	| IF test COLON suite star_ELIF
+          {
+            //$$ = new IfNode($2, $4, nullptr);
+            //pool.add($$);
+          }
 	;
 star_ELIF // Used in: if_stmt, star_ELIF
 	: star_ELIF ELIF test COLON suite
@@ -575,12 +638,17 @@ star_ELIF // Used in: if_stmt, star_ELIF
 	;
 while_stmt // Used in: compound_stmt
 	: WHILE test COLON suite ELSE COLON suite
+        {
+          $$ = NULL;
+        }
 	| WHILE test COLON suite
+        {
+          $$ = NULL;
+        }
 	;
 for_stmt // Used in: compound_stmt
         : FOR exprlist IN testlist COLON suite ELSE COLON suite
 	| FOR exprlist IN testlist COLON suite
-       
         ;
 try_stmt // Used in: compound_stmt
 	: TRY COLON suite plus_except opt_ELSE opt_FINALLY
@@ -623,13 +691,30 @@ opt_AS_COMMA // Used in: except_clause
 	;
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
 	: simple_stmt
-	{ printDebugMsg("simple_stmt -> suite"); }
+	{
+            $$ = new SuiteNode($1);
+            pool.add($$);
+            printDebugMsg("simple_stmt -> suite");
+        }
 	| NEWLINE INDENT plus_stmt DEDENT
-        { printDebugMsg("NEWLINE INDENT plus_stmt DEDENT -> suite"); }
+        {
+          printDebugMsg("NEWLINE INDENT plus_stmt DEDENT -> suite");
+          $$ = new SuiteNode($3);
+          pool.add($$);
+        }
 	;
 plus_stmt // Used in: suite, plus_stmt
 	: plus_stmt stmt
+        {
+          $$ = $1;
+          static_cast<PlusStmtNode*>($$)->insertStmt($2);
+        }
 	| stmt
+        {
+          $$ = new PlusStmtNode();
+          pool.add($$);
+          static_cast<PlusStmtNode*>($$)->insertStmt($1);
+        }
 	;
 testlist_safe // Used in: list_for
 	: old_test plus_COMMA_old_test opt_COMMA
@@ -657,7 +742,13 @@ test // Used in: opt_EQUAL_test, print_stmt, star_COMMA_test, opt_test, plus_COM
 	;
 opt_IF_ELSE // Used in: test
 	: IF or_test ELSE test
+        {
+          printDebugMsg("IF or_test ELSE test -> opt_IF_ELSE");
+        }
 	| %empty
+        {
+          printDebugMsg(" -> opt_IF_ELSE");
+        }
 	;
 or_test // Used in: old_test, test, opt_IF_ELSE, or_test, comp_for
 	: and_test
@@ -675,7 +766,8 @@ and_test // Used in: or_test, and_test
              printDebugMsg("not_test -> and_test");
          }
 	| and_test AND not_test
-         { printDebugMsg("and_test AND not_test  -> and_test"); }
+         {
+           printDebugMsg("and_test AND not_test  -> and_test"); }
 	;
 not_test // Used in: and_test, not_test
 	: NOT not_test
@@ -889,15 +981,29 @@ power // Used in: factor
          }
 	| atom star_trailer
          {
-            $$ = $1;
+           if (!($2->empty())) {
+              std::string n = reinterpret_cast<IdentNode*>($1)->getIdent();
+              $$ = new CallNode(n);
+              pool.add($$);
+              delete $2;
+            }
+            else
+              $$ = $1;
             printDebugMsg("atom star_trailer -> power");
          }
 	;
 star_trailer // Used in: power, star_trailer
 	: star_trailer trailer
-	{  printDebugMsg("star_trailer trailer -> star_trailer"); }
+	{
+          printDebugMsg("star_trailer trailer -> star_trailer");
+          $$ = $1;
+          $$->push_back($2);
+        }
 	| %empty
-        {  printDebugMsg(" -> star_trailer"); }
+        {
+          $$ = new std::vector<Node*>();
+          printDebugMsg(" -> star_trailer");
+        }
 	;
 atom // Used in: power
 	: LPAR opt_yield_test RPAR
@@ -989,15 +1095,19 @@ lambdef // Used in: test
 trailer // Used in: star_trailer
 	: LPAR opt_arglist RPAR
 	{
-	    printDebugMsg("LPAR opt_arglist RPAR -> trailer");  
+            $$ = new TrailerNode($2);
+            pool.add($$);
+	    printDebugMsg("LPAR opt_arglist RPAR -> trailer");
 	}
 	| LSQB subscriptlist RSQB
 	{
-	    printDebugMsg("LSQB subscriptlist RSQB -> trailer");  
+            $$ = NULL;
+	    printDebugMsg("LSQB subscriptlist RSQB -> trailer");
 	}
 	| DOT NAME
         {
-	    printDebugMsg("DOT NAME -> trailer");  
+            $$ = NULL;
+	    printDebugMsg("DOT NAME -> trailer"); 
 	    deleteName($2);
         }
 	;
@@ -1138,7 +1248,6 @@ star_DOT // Used in: pick_dotted_name, star_DOT
 	: star_DOT DOT
 	| %empty
 	;
-
 %%
 
 #include <stdio.h>

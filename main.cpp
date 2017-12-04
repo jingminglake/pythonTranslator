@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 //#include "parse.tab.h"
-#include "includes/symbolTable.h"
+#include "includes/tableManager.h"
 #include "includes/poolOfNodes.h"
 
 extern void init_scanner(FILE *);
@@ -44,17 +44,20 @@ open_file(const char *filename) {
   return file;
 }
 
+bool cmdlineMode = false;
 
 int main(int argc, char * argv[]) {
   FILE *input_file = stdin;
+  if (!(ftell(input_file) == 0) && argc <= 1) {
+      cmdlineMode = true;
+  }
   if (argc > 1) { /* user-supplied filename */
-    input_file = open_file(argv[1]);
+      input_file = open_file(argv[1]);
   }
   init_scanner(input_file);
   yydebug = 0;  /* Change to 1 if you want debugging */
   int parse_had_errors = yyparse();
   PoolOfNodes::getInstance().drainThePool();
-  SymbolTable::getInstance().drainSymbolTable();
   fclose(input_file);
   after_scanner();
   if (parse_had_errors) {
