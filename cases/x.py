@@ -1,6 +1,7 @@
+x = y = 151
 def f():
-  #x = 10
+  y = 100
   def g():
-    print 10
+    print x
   g()
 f()

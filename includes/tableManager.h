@@ -4,12 +4,13 @@
 #include <iostream>
 #include <vector>
 #include "symbolTable.h"
+#include "funcTable.h"
 
 class TableManager {
  public:
     static TableManager& getInstance();
-    const Node* getEntry(const std::string& name);
-    void setEntry(const std::string& name, Node* node);
+    const Literal* getEntry(const std::string& name);
+    void setEntry(const std::string& name, const Literal* val);
     void insertFunc(const std::string& name, Node* node);
     bool checkName(const std::string& name) const;
 
@@ -19,15 +20,18 @@ class TableManager {
  private:
     int currentScope;
     std::vector<SymbolTable*> tables;
-    std::vector<SymbolTable*> funcSuiteTables;  // funcName --> suiteNode
+    std::vector<FuncTable*> funcTables;  // funcName --> its suite Node
     TableManager() : currentScope(0), tables() {
         tables.push_back(new SymbolTable());
-        funcSuiteTables.push_back(NULL);
+        funcTables.push_back(NULL);
     }
     ~TableManager() {
         for (SymbolTable *t : tables)
             delete t;
         tables.clear();
+	for (FuncTable *t : funcTables)
+            delete t;
+        funcTables.clear();
     }
 };
 

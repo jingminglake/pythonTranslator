@@ -15,14 +15,12 @@ extern void yyerror(const char*, const char);
 void freeAST(Node*);
 class IdentNode : public Node {
 public:
- IdentNode(const std::string id) : Node(), ident(id), val(NULL) { } 
+ IdentNode(const std::string id) : Node(), ident(id) { } 
   virtual ~IdentNode() {}
   const std::string getIdent() const { return ident; }
   virtual const Literal* eval() const;
-  virtual void setValue(const Literal *);
 private:
   std::string ident;
-  const Literal* val;
 };
 
 
@@ -267,7 +265,6 @@ public:
   IfNode(){
   }
 };
-
 
 class PrintNode : public Node {
 public:

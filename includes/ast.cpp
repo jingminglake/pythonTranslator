@@ -18,14 +18,20 @@ void freeAST(Node* node) {
   }
 }
 
-const Literal* IdentNode::eval() const { 
-  // const Literal* val = TableManager::getInstance().getEntry(ident)->eval();
-  
-  return val;
-}
-
-void IdentNode::setValue(const Literal *v) {
-  val = v;
+const Literal* IdentNode::eval() const {
+  //std::cout << "ident " << ident << "--->eval()"  << std::endl;
+  const Literal* res = NULL;
+  try {
+    res = TableManager::getInstance().getEntry(ident)->eval();
+  } catch (const std::string& msg) {
+    std::cout << "variable " << msg << std::endl;
+  }
+  /*std::cout << "value: ";
+  if (val)
+    val->eval()->print();
+  else
+  res->eval()->print();*/
+  return res;
 }
 
 const Literal* MinusUnaryNode::eval() const {
@@ -46,22 +52,29 @@ const Literal* TildeUnaryNode::eval() const {
 
 AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
   BinaryNode(left, right) {
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  //const std::string name = static_cast<IdentNode*>(left)->getIdent();
   // must keep the binding information in static table,
   // because we need find the asg node later in other stmt
-  TableManager::getInstance().setEntry(name, right);
+  //TableManager::getInstance().setEntry(name, right);
 }
 
 const Literal* AsgBinaryNode::eval() const {
   if (!left || !right) {
     throw std::string("error");
   }
+  if (!dynamic_cast<IdentNode*>(left)) {
+    throw std::string("SyntaxError: can't assign to operator");
+  }
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  // must find in the table, and could not use right->eval(), 
-  // because right may be a NULL node for current asg node, but from a higher
-  // perspection, the right must be a left value in previous stmt
-  const Literal* res = TableManager::getInstance().getEntry(name)->eval();
-  static_cast<IdentNode*>(left)->setValue(res);
+  std::cout << "AsgBinaryNode::eval() " << name << std::endl;
+  
+  const Literal* res = NULL;
+  try {
+     res = TableManager::getInstance().getEntry(name);
+  } catch(...) {
+     res = right->eval();
+  }
+  TableManager::getInstance().setEntry(name, res);
   return res;
 }
 
@@ -92,7 +105,7 @@ const Literal* PlusAsgBinaryNode::eval() const {
   }
   const Literal* res = *oldValue + *augVal;
   //std::cout << "-=-=-=-2=-=-=-=-=--" << std::endl;
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -120,7 +133,7 @@ const Literal* MinAsgBinaryNode::eval() const {
       std::cout << msg << std::endl;
   }
   const Literal* res = *oldValue - *augVal;
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -148,7 +161,7 @@ const Literal* StarAsgBinaryNode::eval() const {
       std::cout << msg << std::endl;
   }
   const Literal* res = (*oldValue) * (*augVal);
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -176,7 +189,7 @@ const Literal* SlashAsgBinaryNode::eval() const {
       std::cout << msg << std::endl;
   }
   const Literal* res = (*oldValue) / (*augVal);
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -204,7 +217,7 @@ const Literal* DoubleSlashAsgBinaryNode::eval() const {
       std::cout << msg << std::endl;
   }
   const Literal* res = (*oldValue).opDoubleDiv(*augVal);
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -234,7 +247,7 @@ const Literal* DoubleStarAsgBinaryNode::eval() const {
       exit(-1);
   }
   const Literal* res = oldValue->opPower(*augVal);
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -262,7 +275,7 @@ const Literal* PercentAsgBinaryNode::eval() const {
       std::cout << msg << std::endl;
   }
   const Literal* res = (*oldValue) % (*augVal);
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -295,7 +308,7 @@ const Literal* LShiftAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -328,7 +341,7 @@ const Literal* RShiftAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -361,7 +374,7 @@ const Literal* AmperAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -394,7 +407,7 @@ const Literal* VBarAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -427,7 +440,7 @@ const Literal* CircumflexAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  static_cast<IdentNode*>(left)->setValue(res);
+  //static_cast<IdentNode*>(left)->setValue(res);
   return res;
 }
 
@@ -597,8 +610,8 @@ const Literal* FuncDefNode::eval() const {
 
 const Literal* PlusStmtNode::eval() const {
   std::cout << "----------6----------------" << std::endl;
-  auto it = stmts.rbegin();
-  while (it != stmts.rend()) {
+  auto it = stmts.begin();
+  while (it != stmts.end()) {
     if ((*it)) {
       (*it)->eval();
     }
@@ -630,7 +643,7 @@ void PlusStmtNode::insertStmt(Node* n) {
 }
 
 const Literal* CallNode::eval() const {
-  std::cout << "----------100----------------" << std::endl;
+  std::cout << "----------CallNode::eval()-------------" << std::endl;
   TableManager& tm = TableManager::getInstance();
   tm.pushScope();
   if (!tm.checkName(callObjectName)) {
@@ -648,7 +661,8 @@ const Literal* CallNode::eval() const {
 
 const Literal* PrintNode::eval() const {
    std::cout << "PrintNode::eval PrintNode::eval PrintNode::eval" << std::endl;
-  node->eval()->printStmt();
+  if (node->eval())
+    node->eval()->printStmt();
   return NULL;
 }
 

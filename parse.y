@@ -9,7 +9,7 @@
         // extern YYSTYPE yylval;
         void deleteName(char *name);
         PoolOfNodes& pool = PoolOfNodes::getInstance();
-        bool myDebug = false;
+        bool myDebug = true;
         void printDebugMsg(const char *);
         extern bool cmdlineMode;
 %}
@@ -75,8 +75,8 @@ file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
         {
             if ($1) {
-                auto it = $1->rbegin();
-                while (it != $1->rend()) {
+                auto it = $1->begin();
+                while (it != $1->end()) {
                     if ((*it))
                         (*it)->eval();
                     ++it;
@@ -460,10 +460,12 @@ star_COMMA_test // Used in: star_COMMA_test, opt_test, listmaker, testlist_comp,
 opt_test // Used in: print_stmt
 	: test star_COMMA_test opt_COMMA
 	{
+	  printDebugMsg("test star_COMMA_test opt_COMMA -> opt_test");
 	  $$ = $1;
         }
 	| %empty
         {
+	  printDebugMsg(" -> opt_test");
 	  $$ = NULL;
         }
 	;
