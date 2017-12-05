@@ -15,7 +15,7 @@ const Literal* TableManager::getEntry(const std::string& name) {
             tempScope--;
         }
     }
-    throw std::string("'") +  name  + std::string("'") + std::string(" is not defined");
+    throw std::out_of_range(name);
 }
 
 void TableManager::setEntry(const std::string& name, const Literal* val) {
@@ -32,6 +32,11 @@ void TableManager::insertFunc(const std::string& name, Node* node) {
 bool TableManager::checkName(const std::string& name) const {
     const Node* n = funcTables[currentScope]->getValue(name);
     return n ? true : false;
+}
+
+bool TableManager::checkVariable(const std::string& name) const {
+    const Literal* val = tables[currentScope]->getValue(name);
+    return val ? true : false;
 }
 
 void TableManager::pushScope() {

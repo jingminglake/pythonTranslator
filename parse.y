@@ -77,8 +77,17 @@ file_input // Used in: start
             if ($1) {
                 auto it = $1->begin();
                 while (it != $1->end()) {
-                    if ((*it))
+                    if ((*it)) {
+                      try {
                         (*it)->eval();
+                      } catch (const std::string& msg) {
+                          std::cout << msg << std::endl;
+                      } catch (const char* msg) {
+                          std::cout << msg << std::endl;
+                      } catch (...) {
+                          std::cout << "opps, something wrong happened!" << std::endl;
+                      }
+                    }
                     ++it;
                 }
             }

@@ -13,6 +13,7 @@ class TableManager {
     void setEntry(const std::string& name, const Literal* val);
     void insertFunc(const std::string& name, Node* node);
     bool checkName(const std::string& name) const;
+    bool checkVariable(const std::string& name) const;
 
     void pushScope();
     void popScope();
