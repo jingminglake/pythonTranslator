@@ -1,2 +1,3 @@
-x -= 50
-#print x
+def f():
+  print 50
+f()

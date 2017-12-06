@@ -460,10 +460,11 @@ const Literal* CircumflexBinaryNode::eval() const {
 }
 
 FuncDefNode::FuncDefNode(const char* name, Node* suiteNode) : Node(), funcName(std::string(name)), node(static_cast<SuiteNode*>(suiteNode) ) {
-  TableManager::getInstance().insertFunc(funcName, node);
 }
 
 const Literal* FuncDefNode::eval() const {
+  //std::cout << "----------FuncDefNode::eval()----------------" << std::endl;
+  TableManager::getInstance().insertFunc(funcName, node); //should store func's suiteNode in table, because func's suiteNode will eval at the call point, not in the fundefNode eval time
   return nullptr;
 }
 

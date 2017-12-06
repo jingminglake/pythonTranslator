@@ -26,7 +26,7 @@ void TableManager::insertFunc(const std::string& name, Node* node) {
     FuncTable *temp = new FuncTable();
     temp->setValue(name, node);
     tables.push_back(new SymbolTable());
-    funcTables.insert(funcTables.begin()+1, temp);
+    funcTables.push_back(temp);
 }
 
 bool TableManager::checkName(const std::string& name) const {
@@ -44,6 +44,12 @@ void TableManager::pushScope() {
 }
 
 void TableManager::popScope() {
+  /*SymbolTable* st = tables.back();
+    delete st;
+    tables.pop_back();
+    FuncTable* ft = funcTables.back();
+    delete ft;
+    funcTables.pop_back(); */
     currentScope--;
 }
 

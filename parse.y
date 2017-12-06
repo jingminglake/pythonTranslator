@@ -9,8 +9,9 @@
         // extern YYSTYPE yylval;
         void deleteName(char *name);
         PoolOfNodes& pool = PoolOfNodes::getInstance();
-        bool myDebug = true;
+        bool myDebug = false;
         void printDebugMsg(const char *);
+        void printDebugMsg(const std::string&);
         extern bool cmdlineMode;
 %}
 
@@ -788,13 +789,16 @@ not_test // Used in: and_test, not_test
          }
 	| comparison
          {
-            $$ = $1;   
+            $$ = $1;
+            
             printDebugMsg("comparison -> not_test"); 
          }
 	;
 comparison // Used in: not_test, comparison
 	: expr
          {
+             //$$ = new std::vector<Node*>();
+             //$$->push_back($1);
              $$ = $1;
              printDebugMsg("expr -> comparison");
          }
@@ -802,14 +806,15 @@ comparison // Used in: not_test, comparison
          { 
 	   switch($2) {
 	     case LESS:
-               //$$ = new Node($1, $3);
+               //$1->push_back(new LessNode($1.back(), $3));
                break;
   	     case GREATER:
                break;
 	     case EQEQUAL:
 	       break;
            }
-           printDebugMsg("comp_op expr -> comparison"); 
+           $$ = $1;
+           printDebugMsg("comparison comp_op expr -> comparison"); 
          }
 	;
 comp_op // Used in: comparison
@@ -1088,7 +1093,7 @@ atom // Used in: power
         }
         | INTNUMBER
         {
-            printDebugMsg("INTNUMBER -> atom");
+            printDebugMsg(std::string("INTNUMBER: ") + std::to_string($1) + std::string(" -> atom"));
             $$ = new IntLiteral($1);
             pool.add($$);
         }
@@ -1335,6 +1340,11 @@ void deleteName(char *name) {
 }
 
 void printDebugMsg(const char *msg) {
+  if (myDebug)
+     std::cout << msg << std::endl;
+}
+
+void printDebugMsg(const std::string& msg) {
   if (myDebug)
      std::cout << msg << std::endl;
 }
