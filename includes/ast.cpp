@@ -30,19 +30,19 @@ const Literal* IdentNode::eval() const {
 }
 
 const Literal* MinusUnaryNode::eval() const {
-    const Literal* res = node->eval();
-    return res->opMin();
+  const Literal* res = node->eval();
+  return res->opMin();
 }
 
 const Literal* TildeUnaryNode::eval() const {
-    const Literal* temp = node->eval();
-    const Literal* res = nullptr;
-    try {
-      res = ~(*temp);
-    } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
-    }
-    return res;
+  const Literal* temp = node->eval();
+  const Literal* res = nullptr;
+  try {
+    res = ~(*temp);
+  } catch(const std::string& msg) {
+    std::cout << msg << std::endl;
+  }
+  return res;
 }
 
 AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
@@ -116,7 +116,7 @@ const Literal* StarAsgBinaryNode::eval() const {
     throw std::string("error");
   }
   if (!dynamic_cast<IdentNode*>(left)) {
-    throw  std::string("SyntaxError: can't minAssign to operator");
+    throw  std::string("SyntaxError: can't starAssign to operator");
   }
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
   if (!TableManager::getInstance().checkVariable(name)) {
@@ -125,154 +125,125 @@ const Literal* StarAsgBinaryNode::eval() const {
   const Literal* oldValue = TableManager::getInstance().getEntry(name);
   const Literal* augVal = right->eval();
   const Literal* res = (*oldValue) * (*augVal);
-  TableManager::getInstance().setEntry(name, res); // copy to current scope
+  TableManager::getInstance().setEntry(name, res); // modify
   return res;
 }
 
 SlashAsgBinaryNode::SlashAsgBinaryNode(Node* left, Node* right) : 
-  BinaryNode(left, right) { 
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Node* oldRight = NULL;
-  try {
-      oldRight = TableManager::getInstance().getEntry(name);
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
-  }
+  BinaryNode(left, right) {
 }
 
 const Literal* SlashAsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw std::string("error");
   }
-  const Literal* augVal = right->eval();
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Literal* oldValue = NULL;
-  try {
-    oldValue = TableManager::getInstance().getEntry(name)->eval();
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
+  if (!left || !right) {
+    throw std::string("error");
   }
+  if (!dynamic_cast<IdentNode*>(left)) {
+    throw  std::string("SyntaxError: can't slashAssign to operator");
+  }
+  const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if (!TableManager::getInstance().checkVariable(name)) {
+    throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
+  const Literal* oldValue = TableManager::getInstance().getEntry(name);
+  const Literal* augVal = right->eval();
   const Literal* res = (*oldValue) / (*augVal);
-  //static_cast<IdentNode*>(left)->setValue(res);
+  TableManager::getInstance().setEntry(name, res); // modify
   return res;
 }
 
 DoubleSlashAsgBinaryNode::DoubleSlashAsgBinaryNode(Node* left, Node* right) : 
-  BinaryNode(left, right) { 
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Node* oldRight = NULL;
-  try {
-      oldRight = TableManager::getInstance().getEntry(name);
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
-  }
+  BinaryNode(left, right) {
 }
 
 const Literal* DoubleSlashAsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw std::string(std::string("error"));
   }
-  const Literal* augVal = right->eval();
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Literal* oldValue = NULL;
-  try {
-    oldValue = TableManager::getInstance().getEntry(name)->eval();
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
+  if (!dynamic_cast<IdentNode*>(left)) {
+    throw  std::string("SyntaxError: can't doubleSlashAssign to operator");
   }
+  const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if (!TableManager::getInstance().checkVariable(name)) {
+    throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
+  const Literal* oldValue = TableManager::getInstance().getEntry(name);
+  const Literal* augVal = right->eval();
   const Literal* res = (*oldValue).opDoubleDiv(*augVal);
-  //static_cast<IdentNode*>(left)->setValue(res);
+  TableManager::getInstance().setEntry(name, res); // modify
   return res;
 }
 
-DoubleStarAsgBinaryNode::DoubleStarAsgBinaryNode(Node* left, Node* right) : 
-  BinaryNode(left, right) { 
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Node* oldRight = NULL;
-  try {
-    oldRight = TableManager::getInstance().getEntry(name);
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
-      exit(-1);
-  }
+DoubleStarAsgBinaryNode::DoubleStarAsgBinaryNode(Node* left, Node* right) :
+  BinaryNode(left, right) {
 }
 
-const Literal* DoubleStarAsgBinaryNode::eval() const { 
+const Literal* DoubleStarAsgBinaryNode::eval() const {
   if (!left || !right) {
     throw std::string("error");
   }
-  const Literal* augVal = right->eval();
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Literal* oldValue = NULL;
-  try {
-    oldValue = TableManager::getInstance().getEntry(name)->eval();
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
-      exit(-1);
+  if (!dynamic_cast<IdentNode*>(left)) {
+    throw  std::string("SyntaxError: can't doubleStarAssign to operator");
   }
+  const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if (!TableManager::getInstance().checkVariable(name)) {
+    throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
+  const Literal* oldValue = TableManager::getInstance().getEntry(name);
+  const Literal* augVal = right->eval();
   const Literal* res = oldValue->opPower(*augVal);
-  //static_cast<IdentNode*>(left)->setValue(res);
+  TableManager::getInstance().setEntry(name, res); // modify
   return res;
 }
 
 PercentAsgBinaryNode::PercentAsgBinaryNode(Node* left, Node* right) : 
-  BinaryNode(left, right) { 
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Node* oldRight = NULL;
-  try {
-      oldRight = TableManager::getInstance().getEntry(name);
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
-  }
+  BinaryNode(left, right) {
 }
 
 const Literal* PercentAsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw std::string("error");
   }
-  const Literal* augVal = right->eval();
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Literal* oldValue = NULL;
-  try {
-    oldValue = TableManager::getInstance().getEntry(name)->eval();
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
+  if (!dynamic_cast<IdentNode*>(left)) {
+    throw  std::string("SyntaxError: can't percentAsgAssign to operator");
   }
+  const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if (!TableManager::getInstance().checkVariable(name)) {
+    throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
+  const Literal* oldValue = TableManager::getInstance().getEntry(name);
+  const Literal* augVal = right->eval();
   const Literal* res = (*oldValue) % (*augVal);
-  //static_cast<IdentNode*>(left)->setValue(res);
+  TableManager::getInstance().setEntry(name, res); // modify
   return res;
 }
 
 LShiftAsgBinaryNode::LShiftAsgBinaryNode(Node* left, Node* right) :
   BinaryNode(left, right) {
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Node* oldRight = NULL;
-  try {
-    oldRight = TableManager::getInstance().getEntry(name);
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
-  }
 }
 
 const Literal* LShiftAsgBinaryNode::eval() const {
   if (!left || !right) {
     throw std::string("error");
   }
-  const Literal* augVal = right->eval();
-  const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  const Literal* oldValue = NULL;
-  try {
-    oldValue = TableManager::getInstance().getEntry(name)->eval();
-  } catch(const std::string& msg) {
-      std::cout << msg << std::endl;
+  if (!dynamic_cast<IdentNode*>(left)) {
+    throw  std::string("SyntaxError: can't LShiftAssign to operator");
   }
+  const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if (!TableManager::getInstance().checkVariable(name)) {
+    throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
+  const Literal* oldValue = TableManager::getInstance().getEntry(name);
+  const Literal* augVal = right->eval();
   const Literal* res = nullptr;
   try {
     res = (*oldValue) << (*augVal);
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  //static_cast<IdentNode*>(left)->setValue(res);
+  TableManager::getInstance().setEntry(name, res); // modify
   return res;
 }
 
@@ -624,7 +595,7 @@ const Literal* CallNode::eval() const {
 }
 
 const Literal* PrintNode::eval() const {
-   std::cout << "PrintNode::eval PrintNode::eval PrintNode::eval" << std::endl;
+  std::cout << "PrintNode::eval PrintNode::eval PrintNode::eval" << std::endl;
   if (node->eval())
     node->eval()->printStmt();
   return NULL;
