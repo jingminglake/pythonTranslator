@@ -62,79 +62,79 @@ protected:
 
 class AsgBinaryNode : public BinaryNode {
 public:
-  AsgBinaryNode(Node* left, Node* right);
+  AsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class PlusAsgBinaryNode : public BinaryNode {
 public:
-  PlusAsgBinaryNode(Node* left, Node* right);
+  PlusAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class MinAsgBinaryNode : public BinaryNode {
 public:
-  MinAsgBinaryNode(Node* left, Node* right);
+  MinAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class StarAsgBinaryNode : public BinaryNode {
 public:
-  StarAsgBinaryNode(Node* left, Node* right);
+  StarAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class SlashAsgBinaryNode : public BinaryNode {
 public:
-  SlashAsgBinaryNode(Node* left, Node* right);
+  SlashAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class DoubleSlashAsgBinaryNode : public BinaryNode {
 public:
-  DoubleSlashAsgBinaryNode(Node* left, Node* right);
+  DoubleSlashAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class DoubleStarAsgBinaryNode : public BinaryNode {
 public:
-  DoubleStarAsgBinaryNode(Node* left, Node* right);
+  DoubleStarAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class PercentAsgBinaryNode : public BinaryNode {
 public:
-  PercentAsgBinaryNode(Node* left, Node* right);
+  PercentAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class LShiftAsgBinaryNode : public BinaryNode {
 public:
-  LShiftAsgBinaryNode(Node* left, Node* right);
+  LShiftAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class RShiftAsgBinaryNode : public BinaryNode {
 public:
-  RShiftAsgBinaryNode(Node* left, Node* right);
+  RShiftAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class AmperAsgBinaryNode : public BinaryNode {
 public:
-  AmperAsgBinaryNode(Node* left, Node* right);
+  AmperAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class VBarAsgBinaryNode : public BinaryNode {
 public:
-  VBarAsgBinaryNode(Node* left, Node* right);
+  VBarAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
 class CircumflexAsgBinaryNode : public BinaryNode {
 public:
-  CircumflexAsgBinaryNode(Node* left, Node* right);
+  CircumflexAsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {};
   virtual const Literal* eval() const;
 };
 
