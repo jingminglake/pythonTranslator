@@ -468,7 +468,7 @@ const Literal* FuncDefNode::eval() const {
 }
 
 const Literal* PlusStmtNode::eval() const {
-  std::cout << "----------PlusStmtNode::eval()----------------" << std::endl;
+  //std::cout << "----------PlusStmtNode::eval()----------------" << std::endl;
   auto it = stmts.begin();
   while (it != stmts.end()) {
     if ((*it)) {
@@ -492,7 +492,7 @@ const Literal* SuiteNode::eval() const {
   if (!node) {
     throw std::string("suite node is nullptr!!");
   }
-  std::cout << "----------SuiteNode::eval()----------------" << std::endl;
+  //std::cout << "----------SuiteNode::eval()----------------" << std::endl;
   node->eval();
   return nullptr;
 }
@@ -502,7 +502,7 @@ void PlusStmtNode::insertStmt(Node* n) {
 }
 
 const Literal* CallNode::eval() const {
-  std::cout << "----------CallNode::eval()-------------" << std::endl;
+  //std::cout << "----------CallNode::eval()-------------" << std::endl;
   TableManager& tm = TableManager::getInstance();
   tm.pushScope();
   if (!tm.checkName(callObjectName)) {
@@ -519,7 +519,7 @@ const Literal* CallNode::eval() const {
 }
 
 const Literal* PrintNode::eval() const {
-  std::cout << "PrintNode::eval PrintNode::eval PrintNode::eval" << std::endl;
+  //std::cout << "PrintNode::eval PrintNode::eval PrintNode::eval" << std::endl;
   if (node->eval())
     node->eval()->printStmt();
   return nullptr;

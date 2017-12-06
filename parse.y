@@ -9,7 +9,7 @@
         // extern YYSTYPE yylval;
         void deleteName(char *name);
         PoolOfNodes& pool = PoolOfNodes::getInstance();
-        bool myDebug = true;
+        bool myDebug = false;
         void printDebugMsg(const char *);
         extern bool cmdlineMode;
 %}
