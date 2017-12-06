@@ -521,7 +521,25 @@ public:
     //std::cout << "INT: " << val << std::endl;
     std::cout << val << std::endl;
   }
-private:
+protected:
   long long val;
 };
 
+class BoolLiteral: public IntLiteral {
+public:
+  BoolLiteral(int _val): IntLiteral(_val) {}
+
+  virtual const Literal* eval() const { return this; }
+  virtual void print() const {
+    if (val)
+      std::cout << "True" << std::endl;
+    else
+      std::cout << "False" << std::endl;
+  }
+  virtual void printStmt() const {
+    if (val)
+      std::cout << "True" << std::endl;
+    else
+      std::cout << "False" << std::endl;
+  }
+};

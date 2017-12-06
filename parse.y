@@ -9,7 +9,7 @@
         // extern YYSTYPE yylval;
         void deleteName(char *name);
         PoolOfNodes& pool = PoolOfNodes::getInstance();
-        bool myDebug = false;
+        bool myDebug = true;
         void printDebugMsg(const char *);
         extern bool cmdlineMode;
 %}
@@ -50,7 +50,8 @@
 %start start
 %locations
 
-%type<tokenId> pick_PLUS_MINUS pick_multop pick_unop augassign pick_LEFTSHIFT_RIGHTSHIFT
+%type<tokenId> pick_PLUS_MINUS pick_multop pick_unop
+%type<tokenId> augassign pick_LEFTSHIFT_RIGHTSHIFT comp_op
 %type<node> arith_expr atom power factor term shift_expr and_expr xor_expr expr
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
 %type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
@@ -60,7 +61,7 @@
 %type<node> opt_arglist pick_NEWLINE_stmt
 %type<nodes> star_trailer star_NEWLINE_stmt
 %token<fltNumber> FLOATNUMBER
-%token<intNumber> INTNUMBER
+%token<intNumber> INTNUMBER TRUE FALSE
 %right EQUAL
 %%
 
@@ -798,20 +799,64 @@ comparison // Used in: not_test, comparison
              printDebugMsg("expr -> comparison");
          }
 	| comparison comp_op expr
-         { printDebugMsg("comp_op expr -> comparison"); }
+         { 
+	   switch($2) {
+	     case LESS:
+               //$$ = new Node($1, $3);
+               break;
+  	     case GREATER:
+               break;
+	     case EQEQUAL:
+	       break;
+           }
+           printDebugMsg("comp_op expr -> comparison"); 
+         }
 	;
 comp_op // Used in: comparison
 	: LESS
+        {
+           $$ = LESS; 
+        }
 	| GREATER
+	{
+           $$ = GREATER; 
+        }
 	| EQEQUAL
+	{
+           $$ = EQEQUAL; 
+        }
 	| GREATEREQUAL
+	{
+           $$ = GREATEREQUAL; 
+        }
 	| LESSEQUAL
+	{
+           $$ = LESSEQUAL; 
+        }
 	| GRLT
+	{
+           $$ = GRLT; 
+        }
 	| NOTEQUAL
+	{
+           $$ = NOTEQUAL; 
+        }
 	| IN
+	{
+           $$ = IN; 
+        }
 	| NOT IN
+	{
+           $$ = NOT + IN; 
+        }
 	| IS
+	{
+           $$ = IS; 
+        }
 	| IS NOT
+	{
+           $$ = IS + NOT; 
+        }
 	;
 expr // Used in: exec_stmt, with_item, comparison, expr, exprlist, star_COMMA_expr
 	: xor_expr
@@ -1045,6 +1090,18 @@ atom // Used in: power
         {
             printDebugMsg("INTNUMBER -> atom");
             $$ = new IntLiteral($1);
+            pool.add($$);
+        }
+	| TRUE
+	{
+            printDebugMsg("TRUE -> atom");
+            $$ = new BoolLiteral($1);
+            pool.add($$);
+        }
+	| FALSE
+	{
+	    printDebugMsg("FALSE -> atom");
+            $$ = new BoolLiteral($1);
             pool.add($$);
         }
 	| plus_STRING

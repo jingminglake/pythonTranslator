@@ -282,6 +282,8 @@ comment   #.*
 "while"    { return WHILE; }
 "with"     { return WITH; }
 "yield"    { return YIELD; }
+"True"     { yylval.intNumber = 1; return TRUE; }
+"False"    { yylval.intNumber = 0; return FALSE; }
 
 {integer}  {
              //std::cout << "---intnumber---" << std::endl;
