@@ -98,7 +98,7 @@ file_input // Used in: start
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
         {
-            $$ = NULL;
+            $$ = nullptr;
             printDebugMsg("NEWLINE -> pick_NEWLINE_stmt");
         }
 	| stmt
@@ -252,19 +252,19 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	   printDebugMsg("---------print_stmt---------");
         }
 	| del_stmt
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 	| pass_stmt
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 	| flow_stmt
-        { $$ = NULL; }
+        { $$ = nullptr; }
 	| import_stmt
-        { $$ = NULL; }
+        { $$ = nullptr; }
 	| global_stmt
-        { $$ = NULL; }
+        { $$ = nullptr; }
 	| exec_stmt
-        { $$ = NULL; }
+        { $$ = nullptr; }
 	| assert_stmt
-        { $$ = NULL; }
+        { $$ = nullptr; }
 	;
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist
@@ -319,14 +319,14 @@ expr_stmt // Used in: small_stmt
                   pool.add($$);
                   break;
             }
-            /*if ($3 == NULL) {
+            /*if ($3 == nullptr) {
 	      $$ = $1;
               }*/
             printDebugMsg("testlist augassign pick_yield_expr_testlist -> expr_stmt");
         }
         | testlist star_EQUAL
         {
-            if ($2 == NULL) {
+            if ($2 == nullptr) {
 	      $$ = $1;
               printDebugMsg("---------testlist star_EQUAL---------");
               //if (($$)->eval())
@@ -343,7 +343,7 @@ expr_stmt // Used in: small_stmt
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 	: yield_expr
         {
-	    $$ = NULL;
+	    $$ = nullptr;
             printDebugMsg("yield_expr -> pick_yield_expr_testlist");
         }
 	| testlist
@@ -355,7 +355,7 @@ pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 /*star_EQUAL // Used in: expr_stmt, star_EQUAL
 	: star_EQUAL EQUAL  pick_yield_expr_testlist
         {
-          if ($1 == NULL) {
+          if ($1 == nullptr) {
 	    $$ = $3;
             printDebugMsg("-=-=-=---------------------1--");
             //($$)->eval()->print();
@@ -369,7 +369,7 @@ pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
         }
 	| %empty
         {
-            $$ = NULL;
+            $$ = nullptr;
             printDebugMsg("  -> star_EQUAL");
         }
 	; */
@@ -384,7 +384,7 @@ star_EQUAL
 star_EQUAL_R // Used in: expr_stmt, star_EQUAL
 	: EQUAL pick_yield_expr_testlist star_EQUAL_R
         {
-            if ($3 == NULL) {
+            if ($3 == nullptr) {
                 $$ = $2;
             } else {
                 $$ = new AsgBinaryNode($2, $3);
@@ -394,7 +394,7 @@ star_EQUAL_R // Used in: expr_stmt, star_EQUAL
         }
         | %empty
         {
-            $$ = NULL;
+            $$ = nullptr;
             printDebugMsg(" -> star_EQUAL_R");
         }
 	;
@@ -475,7 +475,7 @@ opt_test // Used in: print_stmt
 	| %empty
         {
 	  printDebugMsg(" -> opt_test");
-	  $$ = NULL;
+	  $$ = nullptr;
         }
 	;
 plus_COMMA_test // Used in: plus_COMMA_test, opt_test_2
@@ -491,19 +491,19 @@ del_stmt // Used in: small_stmt
 	;
 pass_stmt // Used in: small_stmt
 	: PASS
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	;
 flow_stmt // Used in: small_stmt
 	: break_stmt
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	| continue_stmt
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	| return_stmt
           { $$ = $1; }
 	| raise_stmt
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	| yield_stmt
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	;
 break_stmt // Used in: flow_stmt
 	: BREAK
@@ -614,22 +614,22 @@ compound_stmt // Used in: stmt
 	: if_stmt
           { $$ = $1; }
 	| while_stmt
-          { $$ = NULL; }
+          { $$ = nullptr; }
  	| for_stmt
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	| try_stmt
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	| with_stmt
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	| funcdef
           {
             printDebugMsg("funcdef -> compound_stmt");
             $$ = $1;
           }
 	| classdef
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	| decorated
-          { $$ = NULL; }
+          { $$ = nullptr; }
 	;
 if_stmt // Used in: compound_stmt
         : IF test COLON suite star_ELIF ELSE COLON suite
@@ -650,11 +650,11 @@ star_ELIF // Used in: if_stmt, star_ELIF
 while_stmt // Used in: compound_stmt
 	: WHILE test COLON suite ELSE COLON suite
         {
-          $$ = NULL;
+          $$ = nullptr;
         }
 	| WHILE test COLON suite
         {
-          $$ = NULL;
+          $$ = nullptr;
         }
 	;
 for_stmt // Used in: compound_stmt
@@ -749,7 +749,7 @@ test // Used in: opt_EQUAL_test, print_stmt, star_COMMA_test, opt_test, plus_COM
             $$ = $1;
             printDebugMsg("or_test opt_IF_ELSE -> test"); }
 	| lambdef
-	{ $$ = NULL;} 
+	{ $$ = nullptr;} 
 	;
 opt_IF_ELSE // Used in: test
 	: IF or_test ELSE test
@@ -1023,11 +1023,11 @@ atom // Used in: power
 	    printDebugMsg("LPAR opt_yield_test RPAR -> atom");
         }
 	| LSQB opt_listmaker RSQB
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 	| LBRACE opt_dictorsetmaker RBRACE
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 	| BACKQUOTE testlist1 BACKQUOTE
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 	| NAME
         {
             printDebugMsg("NAME -> atom");
@@ -1048,12 +1048,12 @@ atom // Used in: power
             pool.add($$);
         }
 	| plus_STRING
-        { $$ = NULL; }
+        { $$ = nullptr; }
 	;
 pick_yield_expr_testlist_comp // Used in: opt_yield_test
 	: yield_expr
 	{ 
-            //$$ = NULL;
+            //$$ = nullptr;
 	    printDebugMsg("yield_expr -> pick_yield_expr_testlist_comp");
 	}
 	| testlist_comp
@@ -1069,7 +1069,7 @@ opt_yield_test // Used in: atom
 	}
 	| %empty
         { 
-            $$ = NULL;
+            $$ = nullptr;
 	    printDebugMsg(" -> opt_yield_test");
 	}
 	;
@@ -1112,12 +1112,12 @@ trailer // Used in: star_trailer
 	}
 	| LSQB subscriptlist RSQB
 	{
-            $$ = NULL;
+            $$ = nullptr;
 	    printDebugMsg("LSQB subscriptlist RSQB -> trailer");
 	}
 	| DOT NAME
         {
-            $$ = NULL;
+            $$ = nullptr;
 	    printDebugMsg("DOT NAME -> trailer"); 
 	    deleteName($2);
         }
@@ -1272,9 +1272,9 @@ void yyerror (const char *s)
 }
 
 void deleteName(char *name) {
-  if (name != NULL)
+  if (name != nullptr)
     delete [] name;
-    name = NULL;
+    name = nullptr;
 }
 
 void printDebugMsg(const char *msg) {

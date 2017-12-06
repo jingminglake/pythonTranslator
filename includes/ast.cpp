@@ -20,7 +20,7 @@ void freeAST(Node* node) {
 
 const Literal* IdentNode::eval() const {
   //std::cout << "ident " << ident << "--->eval()"  << std::endl;
-  const Literal* res = NULL;
+  const Literal* res = nullptr;
   try {
     res = TableManager::getInstance().getEntry(ident)->eval();
   } catch (const std::out_of_range& e) {
@@ -464,7 +464,7 @@ FuncDefNode::FuncDefNode(const char* name, Node* suiteNode) : Node(), funcName(s
 }
 
 const Literal* FuncDefNode::eval() const {
-  return NULL;
+  return nullptr;
 }
 
 const Literal* PlusStmtNode::eval() const {
@@ -478,7 +478,7 @@ const Literal* PlusStmtNode::eval() const {
       break;
     ++it;
   }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -494,7 +494,7 @@ const Literal* SuiteNode::eval() const {
   }
   std::cout << "----------SuiteNode::eval()----------------" << std::endl;
   node->eval();
-  return NULL;
+  return nullptr;
 }
 
 void PlusStmtNode::insertStmt(Node* n) {
@@ -511,7 +511,7 @@ const Literal* CallNode::eval() const {
     throw up;
   }
   tm.getSuite(callObjectName)->eval();
-  const Literal* res = NULL;
+  const Literal* res = nullptr;
   if (tm.checkName("__RETURN__"))
     res = tm.getEntry("__RETURN__")->eval();
   tm.popScope();
@@ -522,12 +522,12 @@ const Literal* PrintNode::eval() const {
   std::cout << "PrintNode::eval PrintNode::eval PrintNode::eval" << std::endl;
   if (node->eval())
     node->eval()->printStmt();
-  return NULL;
+  return nullptr;
 }
 
 const Literal* TrailerNode::eval() const {
   if (node)
     node->eval();
-  return NULL;
+  return nullptr;
 }
 

@@ -67,7 +67,7 @@ int long_string_start_line; /* Starting line for a multi-line string */
 int long_string_start_col ; /* Starting column for a multi-line string */
 };
 
-static struct tok_state *tok = NULL;
+static struct tok_state *tok = nullptr;
 
 static void display_error(const char *msg);
 static void left_enclose(void);
@@ -315,12 +315,12 @@ void
 init_scanner(FILE *input_file)
 {
   yyin = input_file;
-  if (tok != NULL) {
+  if (tok != nullptr) {
     free(tok);
   }
   /* Calloc a new state (so everything is initialised to 0/false) */
   tok = (struct tok_state *)calloc(1, sizeof(struct tok_state));
-  if (tok == NULL) {
+  if (tok == nullptr) {
     display_error("memory allocation failure in init_scanner");
   }
   tok->pending_token = NO_TOKEN;
