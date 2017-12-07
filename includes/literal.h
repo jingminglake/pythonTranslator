@@ -8,6 +8,30 @@ class Literal : public Node {
 public:
   virtual ~Literal() {}
 
+  virtual bool operator==(const Literal& rhs) const = 0;
+  virtual bool opEqual(long double) const = 0;
+  virtual bool opEqual(long long) const = 0;
+
+  virtual bool operator<(const Literal& rhs) const = 0;
+  virtual bool opLess(long double) const = 0;
+  virtual bool opLess(long long) const = 0;
+
+  virtual bool operator>(const Literal& rhs) const = 0;
+  virtual bool opGreater(long double) const = 0;
+  virtual bool opGreater(long long) const = 0;
+
+  virtual bool operator>=(const Literal& rhs) const = 0;
+  virtual bool opGreaterEqual(long double) const = 0;
+  virtual bool opGreaterEqual(long long) const = 0;
+
+  virtual bool operator<=(const Literal& rhs) const = 0;
+  virtual bool opLessEqual(long double) const = 0;
+  virtual bool opLessEqual(long long) const = 0;
+
+  virtual bool operator!=(const Literal& rhs) const = 0;
+  virtual bool opNotEqual(long double) const = 0;
+  virtual bool opNotEqual(long long) const = 0;
+
   virtual const Literal* operator+(const Literal& rhs) const = 0;
   virtual const Literal* opPlus(long double) const = 0;
   virtual const Literal* opPlus(long long) const = 0;
@@ -65,14 +89,72 @@ public:
   virtual void printStmt() const {
     std::cout << "No Way 2" << std::endl;
   }
-  //virtual void getVal() const {
-  //  std::cout << "No Way 3" << std::endl;
-  //}
 };
+
 
 class FloatLiteral: public Literal {
 public:
   FloatLiteral(long double _val): val(_val) {}
+
+  virtual bool operator==(const Literal& rhs) const {
+    return rhs.opEqual(val);
+  }
+  virtual bool opEqual(long double lhs) const {
+    return std::abs(val - lhs) < 1e-6;
+  }
+  virtual bool opEqual(long long lhs) const {
+    return std::abs(val - lhs) < 1e-6;
+  }
+
+  virtual bool operator<(const Literal& rhs) const {
+    return rhs.opLess(val);
+  }
+  virtual bool opLess(long double lhs) const {
+    return lhs < val;
+  }
+  virtual bool opLess(long long lhs) const {
+    return lhs < val;
+  }
+
+  virtual bool operator>(const Literal& rhs) const {
+    return rhs.opGreater(val);
+  }
+  virtual bool opGreater(long double lhs) const {
+    return lhs > val;
+  }
+  virtual bool opGreater(long long lhs) const {
+    return lhs > val;
+  }
+
+  virtual bool operator>=(const Literal& rhs) const {
+    return rhs.opGreaterEqual(val);
+  }
+  virtual bool opGreaterEqual(long double lhs) const {
+    return lhs >= val;
+  }
+  virtual bool opGreaterEqual(long long lhs) const {
+    return lhs >= val;
+  }
+
+  virtual bool operator<=(const Literal& rhs) const {
+    return rhs.opLessEqual(val);
+  }
+  virtual bool opLessEqual(long double lhs) const {
+    return lhs <= val;
+  }
+  virtual bool opLessEqual(long long lhs) const {
+    return lhs <= val;
+  }
+
+  virtual bool operator!=(const Literal& rhs) const {
+    return rhs.opNotEqual(val);
+  }
+  virtual bool opNotEqual(long double lhs) const {
+    return lhs != val;
+  }
+  virtual bool opNotEqual(long long lhs) const {
+    return lhs != val;
+  }
 
   virtual const Literal* operator+(const Literal& rhs) const  {
     return rhs.opPlus(val);
@@ -271,28 +353,89 @@ public:
   virtual const Literal* eval() const { return this; }
   virtual void print() const {
     //std::cout << "FLOAT: ";
-     if  (fmod(val, 1.0) == 0) {
-          std::cout << val << ".0" << std::endl;
-      } else {
-	std::cout << std::setprecision(16) << val << std::endl;
-        //printf("%.16Lg\n", val);
-      }
+    if  (fmod(val, 1.0) == 0) {
+      std::cout << val << ".0" << std::endl;
+    } else {
+      std::cout << std::setprecision(16) << val << std::endl;
+      //printf("%.16Lg\n", val);
+    }
   }
   virtual void printStmt() const {
-     //std::cout << "FLOAT: ";
-     if  (fmod(val, 1.0) == 0 && val < 1e+16) {
-          std::cout << val << ".0" << std::endl;
-     } else {
-       std::cout << std::setprecision(12) << val << std::endl;
-     }
+    //std::cout << "FLOAT: ";
+    if  (fmod(val, 1.0) == 0 && val < 1e+16) {
+      std::cout << val << ".0" << std::endl;
+    } else {
+      std::cout << std::setprecision(12) << val << std::endl;
+    }
   }
+
 private:
   long double val;
 };
 
 class IntLiteral: public Literal {
 public:
- IntLiteral(long long _val): val(_val) {}
+  IntLiteral(long long _val): val(_val) {}
+  
+  virtual bool operator==(const Literal& rhs) const {
+    return rhs.opEqual(val);
+  }
+  virtual bool opEqual(long double lhs) const {
+    return std::abs(val - lhs) < 1e-6;
+  }
+  virtual bool opEqual(long long lhs) const {
+    return val == lhs;
+  }
+
+  virtual bool operator<(const Literal& rhs) const {
+    return rhs.opLess(val);
+  }
+  virtual bool opLess(long double lhs) const {
+    return lhs < val;
+  }
+  virtual bool opLess(long long lhs) const {
+    return lhs < val;
+  }
+
+  virtual bool operator>(const Literal& rhs) const {
+    return rhs.opGreater(val);
+  }
+  virtual bool opGreater(long double lhs) const {
+    return lhs > val;
+  }
+  virtual bool opGreater(long long lhs) const {
+    return lhs > val;
+  }
+
+  virtual bool operator>=(const Literal& rhs) const {
+    return rhs.opGreaterEqual(val);
+  }
+  virtual bool opGreaterEqual(long double lhs) const {
+    return lhs >= val;
+  }
+  virtual bool opGreaterEqual(long long lhs) const {
+    return lhs >= val;
+  }
+
+  virtual bool operator<=(const Literal& rhs) const {
+    return rhs.opLessEqual(val);
+  }
+  virtual bool opLessEqual(long double lhs) const {
+    return lhs <= val;
+  }
+  virtual bool opLessEqual(long long lhs) const {
+    return lhs <= val;
+  }
+
+  virtual bool operator!=(const Literal& rhs) const {
+    return rhs.opNotEqual(val);
+  }
+  virtual bool opNotEqual(long double lhs) const {
+    return lhs != val;
+  }
+  virtual bool opNotEqual(long long lhs) const {
+    return lhs != val;
+  }
 
   virtual const Literal* operator+(const Literal& rhs) const  {
     return rhs.opPlus(val);

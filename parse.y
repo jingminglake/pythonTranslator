@@ -106,8 +106,17 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	| stmt
         {
             $$ = $1;
-            if (cmdlineMode && $$)
-                $$->eval();
+            if (cmdlineMode && $$) {
+	      try {
+		$$->eval();
+	      } catch (const std::string& msg) {
+		std::cout << msg << std::endl;
+	      } catch (const char* msg) {
+		std::cout << msg << std::endl;
+	      } catch (...) {
+		std::cout << "opps, something wrong happened!" << std::endl;
+	      }
+            }
             printDebugMsg("stmt -> pick_NEWLINE_stmt");
         }
 	;
@@ -789,31 +798,42 @@ not_test // Used in: and_test, not_test
          }
 	| comparison
          {
-            $$ = $1;
-            
+            $$ = $1;  
             printDebugMsg("comparison -> not_test"); 
          }
 	;
 comparison // Used in: not_test, comparison
 	: expr
          {
-             //$$ = new std::vector<Node*>();
-             //$$->push_back($1);
              $$ = $1;
              printDebugMsg("expr -> comparison");
          }
 	| comparison comp_op expr
-         { 
+         {
 	   switch($2) {
 	     case LESS:
-               //$1->push_back(new LessNode($1.back(), $3));
+               $$ = new LessNode($1, $3);
                break;
   	     case GREATER:
+               $$ = new GreaterNode($1, $3);
                break;
 	     case EQEQUAL:
+               $$ = new EqEqualNode($1, $3);
+	       break;
+             case GREATEREQUAL:
+               $$ = new GreaterEqualNode($1, $3);
+	       break;
+	     case LESSEQUAL:
+               $$ = new LessEqualNode($1, $3);
+	       break;
+	       /*             case GRLT:
+               $$ = new GRLTNode($1, $3);
+	       break; */
+             case NOTEQUAL:
+               $$ = new NotEqualNode($1, $3);
 	       break;
            }
-           $$ = $1;
+           pool.add($$);
            printDebugMsg("comparison comp_op expr -> comparison"); 
          }
 	;
@@ -866,9 +886,6 @@ comp_op // Used in: comparison
 expr // Used in: exec_stmt, with_item, comparison, expr, exprlist, star_COMMA_expr
 	: xor_expr
         {
-	    //std::cout << "---------print----1-----" << std::endl;
-	    //($$)->eval()->print();
-	    //std::cout << "---------print----1-----" << std::endl;
             $$ = $1;
             printDebugMsg("xor_expr -> expr"); 
         }

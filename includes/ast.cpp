@@ -459,6 +459,146 @@ const Literal* CircumflexBinaryNode::eval() const {
   return res;
 }
 
+const Literal* EqEqualNode::eval() const {
+  const Literal* res = nullptr;
+  int boolVal = 0;
+  if (!dynamic_cast<LessNode*>(left) && !dynamic_cast<GreaterNode*>(left) && !dynamic_cast<EqEqualNode*>(left) && !dynamic_cast<GreaterEqualNode*>(left) && !dynamic_cast<LessEqualNode*>(left) && !dynamic_cast<NotEqualNode*>(left)) { // if it is not comparision Node
+    if (*left->eval() == *right->eval()) {
+      boolVal = 1;
+    }
+  } else {
+    if (*left->eval() == BoolLiteral(0)) { //if left is false, no need to caculate next
+      boolVal = 0;
+    } else {
+      const BinaryNode *temp = static_cast<const BinaryNode*>(left);
+      boolVal = (*temp->getRight()->eval() == *right->eval()) ? 1 : 0;
+    }
+  }
+  res = new BoolLiteral(boolVal);
+  PoolOfNodes::getInstance().add(res);
+  return res;
+}
+
+const Literal* LessNode::eval() const {
+  const Literal* res = nullptr;
+  int boolVal = 0;
+  if (!dynamic_cast<LessNode*>(left) && !dynamic_cast<GreaterNode*>(left) && !dynamic_cast<EqEqualNode*>(left)  && !dynamic_cast<GreaterEqualNode*>(left) && !dynamic_cast<LessEqualNode*>(left) && !dynamic_cast<NotEqualNode*>(left)) { // if it is not comparision Node
+    if (*left->eval() < *right->eval()) {
+      boolVal = 1;
+    }
+  } else {
+    if (*left->eval() == BoolLiteral(0)) { //if left is false, no need to caculate next
+      boolVal = 0;
+    } else {
+      const BinaryNode *temp = static_cast<const BinaryNode*>(left);
+      boolVal = (*temp->getRight()->eval() < *right->eval()) ? 1 : 0;
+    }
+  }
+  res = new BoolLiteral(boolVal);
+  PoolOfNodes::getInstance().add(res);
+  return res; 
+}
+
+const Literal* GreaterNode::eval() const {
+  const Literal* res = nullptr;
+  int boolVal = 0;
+   if (!dynamic_cast<LessNode*>(left) && !dynamic_cast<GreaterNode*>(left) && !dynamic_cast<EqEqualNode*>(left) && !dynamic_cast<GreaterEqualNode*>(left) && !dynamic_cast<LessEqualNode*>(left) && !dynamic_cast<NotEqualNode*>(left)) { // if it is not comparision Node
+    if (*left->eval() > *right->eval()) {
+      boolVal = 1;
+    }
+  } else {
+    if (*left->eval() == BoolLiteral(0)) { //if left is false, no need to caculate next
+      boolVal = 0;
+    } else {
+      const BinaryNode *temp = static_cast<const BinaryNode*>(left);
+      boolVal = (*temp->getRight()->eval() > *right->eval()) ? 1 : 0;
+    }
+  }
+  res = new BoolLiteral(boolVal);
+  PoolOfNodes::getInstance().add(res);
+  return res; 
+}
+
+const Literal* GreaterEqualNode::eval() const {
+  const Literal* res = nullptr;
+  int boolVal = 0;
+   if (!dynamic_cast<LessNode*>(left) && !dynamic_cast<GreaterNode*>(left) && !dynamic_cast<EqEqualNode*>(left) && !dynamic_cast<GreaterEqualNode*>(left) && !dynamic_cast<LessEqualNode*>(left) && !dynamic_cast<NotEqualNode*>(left)) { // if it is not comparision Node
+    if (*left->eval() >= *right->eval()) {
+      boolVal = 1;
+    }
+  } else {
+    if (*left->eval() == BoolLiteral(0)) { //if left is false, no need to caculate next
+      boolVal = 0;
+    } else {
+      const BinaryNode *temp = static_cast<const BinaryNode*>(left);
+      boolVal = (*temp->getRight()->eval() >= *right->eval()) ? 1 : 0;
+    }
+  }
+  res = new BoolLiteral(boolVal);
+  PoolOfNodes::getInstance().add(res);
+  return res; 
+}
+
+const Literal* LessEqualNode::eval() const {
+  const Literal* res = nullptr;
+  int boolVal = 0;
+   if (!dynamic_cast<LessNode*>(left) && !dynamic_cast<GreaterNode*>(left) && !dynamic_cast<EqEqualNode*>(left) && !dynamic_cast<GreaterEqualNode*>(left) && !dynamic_cast<LessEqualNode*>(left) && !dynamic_cast<NotEqualNode*>(left)) { // if it is not comparision Node
+    if (*left->eval() <= *right->eval()) {
+      boolVal = 1;
+    }
+  } else {
+    if (*left->eval() == BoolLiteral(0)) { //if left is false, no need to caculate next
+      boolVal = 0;
+    } else {
+      const BinaryNode *temp = static_cast<const BinaryNode*>(left);
+      boolVal = (*temp->getRight()->eval() <= *right->eval()) ? 1 : 0;
+    }
+  }
+  res = new BoolLiteral(boolVal);
+  PoolOfNodes::getInstance().add(res);
+  return res; 
+}
+
+/*const Literal* GRLTNode::eval() const {
+  const Literal* res = nullptr;
+  int boolVal = 0;
+   if (!dynamic_cast<LessNode*>(left) && !dynamic_cast<GreaterNode*>(left) && !dynamic_cast<EqEqualNode*>(left)) { // if it is not comparision Node
+    if (*left->eval() > *right->eval()) {
+      boolVal = 1;
+    }
+  } else {
+    if (*left->eval() == BoolLiteral(0)) { //if left is false, no need to caculate next
+      boolVal = 0;
+    } else {
+      const BinaryNode *temp = static_cast<const BinaryNode*>(left);
+      boolVal = (*temp->getRight()->eval() > *right->eval()) ? 1 : 0;
+    }
+  }
+  res = new BoolLiteral(boolVal);
+  PoolOfNodes::getInstance().add(res);
+  return res; 
+  } */
+
+const Literal* NotEqualNode::eval() const {
+  const Literal* res = nullptr;
+  int boolVal = 0;
+   if (!dynamic_cast<LessNode*>(left) && !dynamic_cast<GreaterNode*>(left) && !dynamic_cast<EqEqualNode*>(left) && !dynamic_cast<GreaterEqualNode*>(left) && !dynamic_cast<LessEqualNode*>(left) && !dynamic_cast<NotEqualNode*>(left)) { // if it is not comparision Node
+    if (*left->eval() != *right->eval()) {
+      boolVal = 1;
+    }
+  } else {
+    if (*left->eval() == BoolLiteral(0)) { //if left is false, no need to caculate next
+      boolVal = 0;
+    } else {
+      const BinaryNode *temp = static_cast<const BinaryNode*>(left);
+      boolVal = (*temp->getRight()->eval() != *right->eval()) ? 1 : 0;
+    }
+  }
+  res = new BoolLiteral(boolVal);
+  PoolOfNodes::getInstance().add(res);
+  return res; 
+}
+
 FuncDefNode::FuncDefNode(const char* name, Node* suiteNode) : Node(), funcName(std::string(name)), node(static_cast<SuiteNode*>(suiteNode) ) {
 }
 
@@ -496,10 +636,6 @@ const Literal* SuiteNode::eval() const {
   //std::cout << "----------SuiteNode::eval()----------------" << std::endl;
   node->eval();
   return nullptr;
-}
-
-void PlusStmtNode::insertStmt(Node* n) {
-  stmts.push_back(n);
 }
 
 const Literal* CallNode::eval() const {

@@ -210,6 +210,48 @@ public:
   virtual const Literal* eval() const;
 };
 
+class EqEqualNode : public BinaryNode {
+public:
+  EqEqualNode(Node* left, Node* right) : BinaryNode(left, right) {}
+  virtual const Literal* eval() const;
+};
+
+class LessNode : public BinaryNode {
+public:
+  LessNode(Node* left, Node* right) : BinaryNode(left, right) {}
+  virtual const Literal* eval() const;
+};
+
+class GreaterNode : public BinaryNode {
+public:
+  GreaterNode(Node* left, Node* right) : BinaryNode(left, right) {}
+  virtual const Literal* eval() const;
+};
+
+class GreaterEqualNode : public BinaryNode {
+public:
+  GreaterEqualNode(Node* left, Node* right) : BinaryNode(left, right) {}
+  virtual const Literal* eval() const;
+};
+
+class LessEqualNode : public BinaryNode {
+public:
+  LessEqualNode(Node* left, Node* right) : BinaryNode(left, right) {}
+  virtual const Literal* eval() const;
+};
+
+class GRLTNode : public BinaryNode {
+public:
+  GRLTNode(Node* left, Node* right) : BinaryNode(left, right) {}
+  virtual const Literal* eval() const;
+};
+
+class NotEqualNode : public BinaryNode {
+public:
+  NotEqualNode(Node* left, Node* right) : BinaryNode(left, right) {}
+  virtual const Literal* eval() const;
+};
+
 class SuiteNode;
 
 class FuncDefNode : public Node {
@@ -227,7 +269,9 @@ public:
      stmts.reserve(8);
   }
   virtual const Literal* eval() const;
-  void insertStmt(Node* n);
+  void insertStmt(Node* n) {
+    stmts.push_back(n);
+  }
 private:
   std::vector<Node*> stmts;
 };
