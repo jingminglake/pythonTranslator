@@ -278,20 +278,11 @@ private:
 
 class SuiteNode : public Node {
 public:
-  SuiteNode(Node* n) : Node() {
-    /* PlusStmtNode *psn = dynamic_cast<PlusStmtNode*>(n);
-    if (psn) {
-      std::vector<Node*> nodes = psn->getStmts();
-      stmts.assign(nodes.rbegin(), nodes.rend());
-    } else {
-      stmts.push_back(n);
-      } */
-    node = n;
-  }
+  SuiteNode(Node* n) : Node(), node(n) {}
   virtual const Literal* eval() const;
 private:
+  Node* node;
   //std::vector<Node*> stmts;
-  Node *node;
 };
 
 class CallNode : public Node {
@@ -306,8 +297,11 @@ private:
 
 class IfNode : public Node {
 public:
-  IfNode(){
-  }
+  IfNode(Node* testNode, Node* suiteNode) : tNode(testNode), sNode(static_cast<SuiteNode*>(suiteNode)){}
+  virtual const Literal* eval() const;
+private:
+  Node* tNode;
+  SuiteNode* sNode;
 };
 
 class PrintNode : public Node {

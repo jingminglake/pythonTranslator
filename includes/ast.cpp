@@ -615,7 +615,7 @@ const Literal* PlusStmtNode::eval() const {
     if ((*it)) {
       (*it)->eval();
     }
-    if (TableManager::getInstance().checkName("__RETURN__"))
+    if (TableManager::getInstance().checkVariable("__RETURN__"))
       break;
     ++it;
   }
@@ -654,6 +654,15 @@ const Literal* CallNode::eval() const {
   tm.popScope();
   return res;
 }
+
+const Literal* IfNode::eval() const {
+  //std::cout << "IfNode::eval IfNode::eval IfNode::eval" << std::endl;
+  const Literal* res = nullptr;
+  if ( *tNode->eval() != BoolLiteral(0) )
+     sNode->eval();
+  return res;
+}
+
 
 const Literal* PrintNode::eval() const {
   //std::cout << "PrintNode::eval PrintNode::eval PrintNode::eval" << std::endl;

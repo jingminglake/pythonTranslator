@@ -645,13 +645,14 @@ compound_stmt // Used in: stmt
 if_stmt // Used in: compound_stmt
         : IF test COLON suite star_ELIF ELSE COLON suite
           {
+            $$ = nullptr;
             //$$ = new IfNode($2, $4, $8);
             //pool.add($$);
           }
 	| IF test COLON suite star_ELIF
           {
-            //$$ = new IfNode($2, $4, nullptr);
-            //pool.add($$);
+            $$ = new IfNode($2, $4);
+            pool.add($$);
           }
 	;
 star_ELIF // Used in: if_stmt, star_ELIF
