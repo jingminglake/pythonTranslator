@@ -600,6 +600,9 @@ const Literal* NotEqualNode::eval() const {
 }
 
 FuncDefNode::FuncDefNode(const char* name, Node* suiteNode) : Node(), funcName(std::string(name)), node(static_cast<SuiteNode*>(suiteNode) ) {
+  //TableManager::getInstance().pushScope();
+  //TableManager::getInstance().insertFunc(funcName, node);
+  //TableManager::getInstance().popScope();
 }
 
 const Literal* FuncDefNode::eval() const {
@@ -613,17 +616,24 @@ const Literal* FuncDefNode::eval() const {
 
 const Literal* PlusStmtNode::eval() const {
   //std::cout << "----------PlusStmtNode::eval()----------------" << std::endl;
+  const Literal* res = nullptr;
   auto it = stmts.begin();
   while (it != stmts.end()) {
-    if ((*it)) {
-      (*it)->eval();
+    if (TableManager::getInstance().getReturnFlag())
+      break;
+    if (*it) {
+      res = (*it)->eval();
     }
-    if (TableManager::getInstance().checkVariable("__RETURN__")) {
+    if (dynamic_cast<ReturnNode*>(*it)) {
+      TableManager::getInstance().setReturnFlag(true);
       break;
     }
+    //if (TableManager::getInstance().checkVariable("__RETURN__")) {
+    //  break;
+    //}
     ++it;
   }
-  return nullptr;
+  return res;
 }
 
 
@@ -632,12 +642,12 @@ const Literal* SuiteNode::eval() const {
   if (!node) {
     throw std::string("suite node is nullptr!!");
   }
-  node->eval();
-  return nullptr;
+  return node->eval();
 }
 
 const Literal* CallNode::eval() const {
   //std::cout << "----------CallNode::eval()-------------" << std::endl;
+  const Literal* res = nullptr;
   TableManager& tm = TableManager::getInstance();
   tm.pushScope();
   if (!tm.checkName(callObjectName)) {
@@ -645,13 +655,15 @@ const Literal* CallNode::eval() const {
     std::exception up = std::exception();
     throw up;
   }
-  //std::cout << "function " << callObjectName << "-->call() " << std::endl;
-  tm.getSuite(callObjectName)->eval();
-  const Literal* res = nullptr;
-  if (tm.checkVariable("__RETURN__")) {
+  // std::cout << "function " << callObjectName << "-->call() " << std::endl;
+  res = tm.getSuite(callObjectName)->eval();
+  /*if (tm.checkVariable("__RETURN__")) {
     if (tm.getEntry("__RETURN__"))
       res = tm.getEntry("__RETURN__");
     tm.removeEntry("__RETURN__");
+    }*/
+  if (tm.getReturnFlag()) {
+    tm.setReturnFlag(false);
   }
   tm.popScope();
   //tm.setEntry(name, res);
@@ -670,10 +682,13 @@ const Literal* IfNode::eval() const {
 
 const Literal* ReturnNode::eval() const {
   //std::cout << "ReturnNode::eval ReturnNode::eval ReturnNode::eval" << std::endl;
-  const Literal* res = new NullLiteral;
+  //const Literal* res = new NullLiteral;
+  const Literal* res = nullptr;
+  //PoolOfNodes::getInstance().add(res);
   if (node)
     res = node->eval();
-  TableManager::getInstance().setEntry(std::string("__RETURN__"), res);
+  //TableManager::getInstance().setEntry(std::string("__RETURN__"), res);
+  TableManager::getInstance().setReturnFlag(true);
   return res;
 }
 

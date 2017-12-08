@@ -19,8 +19,11 @@ class TableManager {
     void pushScope();
     void popScope();
     const Node* getSuite(const std::string& name);
+    bool getReturnFlag();
+    void setReturnFlag(bool);
  private:
     int currentScope;
+    bool returnFlag;
     std::vector<SymbolTable*> tables;
     std::vector<FuncTable*> funcTables;  // funcName --> its suite Node
     TableManager() : currentScope(0), tables() {

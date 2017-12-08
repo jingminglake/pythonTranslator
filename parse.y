@@ -57,9 +57,9 @@
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
 %type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
 %type<node> stmt print_stmt opt_test opt_yield_test pick_yield_expr_testlist_comp star_EQUAL_R
-%type<node> compound_stmt pass_stmt flow_stmt break_stmt continue_stmt return_stmt raise_stmt yield_stmt
-%type<node> plus_stmt funcdef if_stmt suite  while_stmt for_stmt try_stmt trailer
-%type<node> opt_arglist pick_NEWLINE_stmt
+%type<node> compound_stmt flow_stmt return_stmt
+%type<node> plus_stmt funcdef if_stmt suite trailer
+%type<node> opt_arglist arglist pick_NEWLINE_stmt
 %type<nodes> star_trailer star_NEWLINE_stmt
 %token<fltNumber> FLOATNUMBER
 %token<intNumber> INTNUMBER TRUE FALSE
@@ -84,11 +84,14 @@ file_input // Used in: start
                         (*it)->eval();
                       } catch (const std::string& msg) {
                           std::cout << msg << std::endl;
+			  delete $1;
                       } catch (const char* msg) {
                           std::cout << msg << std::endl;
+			  delete $1;
                       } catch (...) {
                           std::cout << "opps, something wrong happened!" << std::endl;
-                      }
+			  delete $1;
+                      } 
                     }
                     ++it;
                 }
@@ -142,7 +145,9 @@ decorator // Used in: decorators
 	;
 opt_arglist // Used in: decorator, trailer
 	: arglist
+        { $$ = $1;}
 	| %empty
+	{ $$ = nullptr; }
 	;
 decorators // Used in: decorators, decorated
 	: decorators decorator
@@ -502,7 +507,6 @@ del_stmt // Used in: small_stmt
 	;
 pass_stmt // Used in: small_stmt
 	: PASS
-          { $$ = nullptr; }
 	;
 flow_stmt // Used in: small_stmt
 	: break_stmt
@@ -672,14 +676,8 @@ star_ELIF // Used in: if_stmt, star_ELIF
 	| %empty
 	;
 while_stmt // Used in: compound_stmt
-	: WHILE test COLON suite ELSE COLON suite
-        {
-          $$ = nullptr;
-        }
+	: WHILE test COLON suite ELSE COLON suite      
 	| WHILE test COLON suite
-        {
-          $$ = nullptr;
-        }
 	;
 for_stmt // Used in: compound_stmt
         : FOR exprlist IN testlist COLON suite ELSE COLON suite
@@ -1077,10 +1075,10 @@ power // Used in: factor
               std::string n = reinterpret_cast<IdentNode*>($1)->getIdent();
               $$ = new CallNode(n);
               pool.add($$);
-              delete $2;
             }
             else
               $$ = $1;
+	    delete $2;
             printDebugMsg("atom star_trailer -> power");
          }
 	;
@@ -1288,6 +1286,7 @@ opt_testlist // Used in: classdef
 	;
 arglist // Used in: opt_arglist
 	: star_argument_COMMA pick_argument
+        { $$ = nullptr; }
 	;
 star_argument_COMMA // Used in: arglist, star_argument_COMMA
 	: star_argument_COMMA argument COMMA

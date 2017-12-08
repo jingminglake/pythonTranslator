@@ -8,23 +8,26 @@ Project due date: December 8th, 2017
 
 Project description: 
 
-(1) 
+(1) Translating constructs from previous project, including int and float values, variables, print, assignment and the exressions
 
-(2) 
+(2) Translating if/else and 6 relational operations: <, <=, ==, >, >=, !=
 
-(3) 
+(3) Translating Bool value True and False
+
+(4) Translating Basic Scope, nested functions and return statement
+
+(5) Adequately test cases and mytest.py script to process all of them
 
 
-The easiest part of this project: 
+The easiest part of this project: build ast while parsing
 
 Problems that I had in completing this project:
-(1) modify old struct to new struct, compatible with pro4, all testcases of pro4 passed
-(2) add bool class
-(3) compare is hard, it exists recurision
-(4) 
-(5) 
-(6) 
+(1) Modify pro4 to pro5 is tough, need a lot of work 
+(2) Implement relational operation is hard because it contains recursion
+(3) Translating nested function is hard, many grammers and features I am not fimilar with
 
-PS. (1) 
-    (2) 
-    (3) No memeory leaks.
+PS. (1) Compatible with pro4, all testcases of pro4 passed
+    (2) Add Bool and NULL type
+    (3) Nested relational operations
+    (4) No memeory leaks
+    (5) More functions will be implement in pro6

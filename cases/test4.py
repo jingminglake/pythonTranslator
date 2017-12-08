@@ -1,8 +1,8 @@
 def f():
-  return 7*6
+  return 7*2
 def g():
   print 15
-  x = 12
+  x=12
   def h():
     return x
   print h()
