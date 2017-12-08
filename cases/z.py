@@ -1,4 +1,3 @@
-x = y = 100
-#def f():
-#  print 50
-#f()
+def f():
+  return 50
+f()

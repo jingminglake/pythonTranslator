@@ -297,16 +297,26 @@ private:
 
 class IfNode : public Node {
 public:
-  IfNode(Node* testNode, Node* suiteNode) : tNode(testNode), sNode(static_cast<SuiteNode*>(suiteNode)){}
+ IfNode(Node* testNode, Node* suiteNode) : Node(), tNode(testNode), ifNode(static_cast<SuiteNode*>(suiteNode)), elseNode(nullptr){}
+ IfNode(Node* testNode, Node* suiteNode_if, Node* suiteNode_else) : Node(), tNode(testNode), ifNode(static_cast<SuiteNode*>(suiteNode_if)), elseNode(static_cast<SuiteNode*>(suiteNode_else)){}
   virtual const Literal* eval() const;
 private:
   Node* tNode;
-  SuiteNode* sNode;
+  SuiteNode* ifNode;
+  SuiteNode* elseNode;
+};
+
+class ReturnNode : public Node {
+public:
+  ReturnNode(Node* n) : Node(), node(n){}
+  virtual const Literal* eval() const;
+private:
+  Node* node;
 };
 
 class PrintNode : public Node {
 public:
-  PrintNode(Node* n) : node(n) {}
+ PrintNode(Node* n) : Node(), node(n) {}
   virtual const Literal* eval() const;
 private:
   Node *node;
@@ -314,7 +324,7 @@ private:
 
 class TrailerNode : public Node {
 public:
-  TrailerNode(Node *n) : node(n){
+  TrailerNode(Node *n) : Node(), node(n) {
   }
   virtual const Literal* eval() const;
 private:

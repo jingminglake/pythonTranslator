@@ -5,7 +5,10 @@ def f():
     x = 17
     if x:
       print 1
+      return
     else:
       print 2
+    print 101
+    print 102
 f()
 print 17

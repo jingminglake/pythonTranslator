@@ -18,15 +18,21 @@ const Literal* TableManager::getEntry(const std::string& name) {
     throw std::out_of_range(name);
 }
 
+void TableManager::removeEntry(const std::string& name) {
+    tables[currentScope]->removeValue(name);
+}
+
 void TableManager::setEntry(const std::string& name, const Literal* val) {
     tables[currentScope]->setValue(name, val);
 }
 
 void TableManager::insertFunc(const std::string& name, Node* node) {
-    FuncTable *temp = new FuncTable();
-    temp->setValue(name, node);
-    tables.push_back(new SymbolTable());
-    funcTables.push_back(temp);
+    
+    if (currentScope == (int)tables.size()) {
+	tables.push_back(new SymbolTable());
+	funcTables.push_back(new FuncTable());
+    }
+    funcTables[currentScope]->setValue(name, node);
 }
 
 bool TableManager::checkName(const std::string& name) const {
@@ -44,7 +50,9 @@ void TableManager::pushScope() {
 }
 
 void TableManager::popScope() {
-  /*SymbolTable* st = tables.back();
+    /* if (tables.empty() || funcTables.empty())
+	return;
+    SymbolTable* st = tables.back();
     delete st;
     tables.pop_back();
     FuncTable* ft = funcTables.back();

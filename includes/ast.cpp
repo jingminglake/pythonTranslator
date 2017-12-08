@@ -414,7 +414,7 @@ const Literal* RightShiftBinaryNode::eval() const {
   return res;
 }
 
-const Literal* AmpersandBinaryNode::eval() const { 
+const Literal* AmpersandBinaryNode::eval() const {
   if (!left || !right) {
     throw std::string("error");
   }
@@ -604,7 +604,10 @@ FuncDefNode::FuncDefNode(const char* name, Node* suiteNode) : Node(), funcName(s
 
 const Literal* FuncDefNode::eval() const {
   //std::cout << "----------FuncDefNode::eval()----------------" << std::endl;
+  //std::cout << "funcName-->" << funcName << std::endl;
+  TableManager::getInstance().pushScope();
   TableManager::getInstance().insertFunc(funcName, node); //should store func's suiteNode in table, because func's suiteNode will eval at the call point, not in the fundefNode eval time
+  TableManager::getInstance().popScope();
   return nullptr;
 }
 
@@ -615,8 +618,9 @@ const Literal* PlusStmtNode::eval() const {
     if ((*it)) {
       (*it)->eval();
     }
-    if (TableManager::getInstance().checkVariable("__RETURN__"))
+    if (TableManager::getInstance().checkVariable("__RETURN__")) {
       break;
+    }
     ++it;
   }
   return nullptr;
@@ -624,16 +628,10 @@ const Literal* PlusStmtNode::eval() const {
 
 
 const Literal* SuiteNode::eval() const {
-  /* PlusStmtNode *psn = dynamic_cast<PlusStmtNode*>(n);
-  if (psn) {
-    psn->eval();
-  } else {
-    //
-    }*/
+  //std::cout << "----------SuiteNode::eval()----------------" << std::endl;
   if (!node) {
     throw std::string("suite node is nullptr!!");
   }
-  //std::cout << "----------SuiteNode::eval()----------------" << std::endl;
   node->eval();
   return nullptr;
 }
@@ -647,11 +645,16 @@ const Literal* CallNode::eval() const {
     std::exception up = std::exception();
     throw up;
   }
+  //std::cout << "function " << callObjectName << "-->call() " << std::endl;
   tm.getSuite(callObjectName)->eval();
   const Literal* res = nullptr;
-  if (tm.checkName("__RETURN__"))
-    res = tm.getEntry("__RETURN__")->eval();
+  if (tm.checkVariable("__RETURN__")) {
+    if (tm.getEntry("__RETURN__"))
+      res = tm.getEntry("__RETURN__");
+    tm.removeEntry("__RETURN__");
+  }
   tm.popScope();
+  //tm.setEntry(name, res);
   return res;
 }
 
@@ -659,21 +662,35 @@ const Literal* IfNode::eval() const {
   //std::cout << "IfNode::eval IfNode::eval IfNode::eval" << std::endl;
   const Literal* res = nullptr;
   if ( *tNode->eval() != BoolLiteral(0) )
-     sNode->eval();
+    ifNode->eval();
+  else if (elseNode)
+    elseNode->eval();
+  return res;
+}
+
+const Literal* ReturnNode::eval() const {
+  //std::cout << "ReturnNode::eval ReturnNode::eval ReturnNode::eval" << std::endl;
+  const Literal* res = new NullLiteral;
+  if (node)
+    res = node->eval();
+  TableManager::getInstance().setEntry(std::string("__RETURN__"), res);
   return res;
 }
 
 
 const Literal* PrintNode::eval() const {
   //std::cout << "PrintNode::eval PrintNode::eval PrintNode::eval" << std::endl;
-  if (node->eval())
-    node->eval()->printStmt();
+  const Literal *res = node->eval();
+  if (res)
+    res->printStmt();
+  else
+    std::cout << "None" << std::endl;
   return nullptr;
 }
 
 const Literal* TrailerNode::eval() const {
   if (node)
-    node->eval();
+     node->eval();
   return nullptr;
 }
 

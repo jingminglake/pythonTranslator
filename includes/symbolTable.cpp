@@ -14,3 +14,8 @@ const Literal* SymbolTable::getValue(const std::string& name) const {
 void SymbolTable::setValue(const std::string& name, const Literal* val) { 
   table[name] = val;
 }
+
+void SymbolTable::removeValue(const std::string& name) {
+    auto it = table.find(name);
+    table.erase(it);
+}

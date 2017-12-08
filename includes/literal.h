@@ -686,3 +686,15 @@ public:
       std::cout << "False" << std::endl;
   }
 };
+
+class NullLiteral : public IntLiteral {
+public:
+  NullLiteral(): IntLiteral(0) {}
+  virtual const Literal* eval() const { return this; }
+  virtual void print() const {
+    std::cout << "None" << std::endl;
+  }
+  virtual void printStmt() const {
+    std::cout << "None" << std::endl;
+  }
+};

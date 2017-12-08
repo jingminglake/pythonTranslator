@@ -267,7 +267,7 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	| pass_stmt
 	{ $$ = nullptr; }
 	| flow_stmt
-        { $$ = nullptr; }
+        { $$ = $1; }
 	| import_stmt
         { $$ = nullptr; }
 	| global_stmt
@@ -510,7 +510,10 @@ flow_stmt // Used in: small_stmt
 	| continue_stmt
           { $$ = nullptr; }
 	| return_stmt
-          { $$ = $1; }
+          { 
+            $$ = $1;
+            printDebugMsg("return_stmt -> flow_stmt");
+          }
 	| raise_stmt
           { $$ = nullptr; }
 	| yield_stmt
@@ -524,7 +527,17 @@ continue_stmt // Used in: flow_stmt
 	;
 return_stmt // Used in: flow_stmt
 	: RETURN testlist
+        {
+	  $$ = new ReturnNode($2);
+	  pool.add($$);
+          printDebugMsg("RETURN testlist -> return_stmt");
+        }
 	| RETURN
+        {
+          $$ = new ReturnNode(nullptr);
+          pool.add($$);
+          printDebugMsg("RETURN -> return_stmt");
+        }
 	;
 yield_stmt // Used in: flow_stmt
 	: yield_expr
@@ -645,9 +658,8 @@ compound_stmt // Used in: stmt
 if_stmt // Used in: compound_stmt
         : IF test COLON suite star_ELIF ELSE COLON suite
           {
-            $$ = nullptr;
-            //$$ = new IfNode($2, $4, $8);
-            //pool.add($$);
+            $$ = new IfNode($2, $4, $8);
+            pool.add($$);
           }
 	| IF test COLON suite star_ELIF
           {
@@ -715,15 +727,16 @@ opt_AS_COMMA // Used in: except_clause
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
 	: simple_stmt
 	{
-            $$ = new SuiteNode($1);
-            pool.add($$);
-            printDebugMsg("simple_stmt -> suite");
+	  // $$ = new SuiteNode($1);
+	  //pool.add($$);
+	  $$ = $1;
+	  printDebugMsg("simple_stmt -> suite");
         }
 	| NEWLINE INDENT plus_stmt DEDENT
         {
-          printDebugMsg("NEWLINE INDENT plus_stmt DEDENT -> suite");
-          $$ = new SuiteNode($3);
-          pool.add($$);
+	  printDebugMsg("NEWLINE INDENT plus_stmt DEDENT -> suite");
+	  $$ = new SuiteNode($3);
+	  pool.add($$);
         }
 	;
 plus_stmt // Used in: suite, plus_stmt

@@ -12,6 +12,7 @@ class TableManager {
     const Literal* getEntry(const std::string& name);
     void setEntry(const std::string& name, const Literal* val);
     void insertFunc(const std::string& name, Node* node);
+    void removeEntry(const std::string& name);
     bool checkName(const std::string& name) const;
     bool checkVariable(const std::string& name) const;
 
@@ -24,7 +25,7 @@ class TableManager {
     std::vector<FuncTable*> funcTables;  // funcName --> its suite Node
     TableManager() : currentScope(0), tables() {
         tables.push_back(new SymbolTable());
-        funcTables.push_back(NULL);
+        funcTables.push_back(new FuncTable());
     }
     ~TableManager() {
         for (SymbolTable *t : tables)
