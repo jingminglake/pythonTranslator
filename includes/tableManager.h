@@ -3,40 +3,33 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include "symbolTable.h"
 #include "funcTable.h"
 
 class TableManager {
  public:
     static TableManager& getInstance();
-    const Literal* getEntry(const std::string& name);
-    void setEntry(const std::string& name, const Literal* val);
     void insertFunc(const std::string& name, Node* node);
     void removeEntry(const std::string& name);
     bool checkName(const std::string& name) const;
-    bool checkVariable(const std::string& name) const;
-
-    void pushScope();
-    void popScope();
-    const Node* getSuite(const std::string& name);
+    FuncTable* getFuncTable(const std::string& name);
     bool getReturnFlag();
     void setReturnFlag(bool);
+    void pushScope();
+    void popScope();
+    int getCurrentScope();
  private:
     int currentScope;
     bool returnFlag;
-    std::vector<SymbolTable*> tables;
-    std::vector<FuncTable*> funcTables;  // funcName --> its suite Node
-    TableManager() : currentScope(0), tables() {
-        tables.push_back(new SymbolTable());
-        funcTables.push_back(new FuncTable());
-    }
+    SymbolTable* table; // global variables
+    std::unordered_map<const string& funcName, FuncTable*> globalFuncs;  // global funcs
+    TableManager() : currentScope(0), returnFlag(false), table(new SymbolTable()), globalFuncs() {}
     ~TableManager() {
-        for (SymbolTable *t : tables)
-            delete t;
-        tables.clear();
-	for (FuncTable *t : funcTables)
-            delete t;
-        funcTables.clear();
+       delete table;
+       for(auto it = globalFuncs.begin(); it != globalFuncs.end(); ++it)
+ 	 delete it->second;
+       globalFuncs.clear();
     }
 };
 

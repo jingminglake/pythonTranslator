@@ -600,22 +600,30 @@ const Literal* NotEqualNode::eval() const {
 }
 
 FuncDefNode::FuncDefNode(const char* name, Node* suiteNode) : Node(), funcName(std::string(name)), node(static_cast<SuiteNode*>(suiteNode) ) {
-  //TableManager::getInstance().pushScope();
-  //TableManager::getInstance().insertFunc(funcName, node);
-  //TableManager::getInstance().popScope();
+  TableManager::getInstance().pushScope();
+  SymbolTable* t = new SymbolTable();
+  TableManager::getInstance().insertFunc(funcName, );
+  TableManager::getInstance().pushScope();
 }
 
 const Literal* FuncDefNode::eval() const {
   //std::cout << "----------FuncDefNode::eval()----------------" << std::endl;
   //std::cout << "funcName-->" << funcName << std::endl;
-  TableManager::getInstance().pushScope();
-  TableManager::getInstance().insertFunc(funcName, node); //should store func's suiteNode in table, because func's suiteNode will eval at the call point, not in the fundefNode eval time
+
+  if (TableManager::getInstance().getCurrentScope() == 0) 
+    TableManager::getInstance().insertFunc(funcName, );
+  
+
+  FuncTable *funcT = new FuncTable();
+  funcT->pushScope();
+  funcT->insertFunc(funcName, node); //should store func's suiteNode in table, because func's suiteNode will eval at the call point, not in the fundefNode eval time
   TableManager::getInstance().popScope();
   return nullptr;
 }
 
-const Literal* PlusStmtNode::eval() const {
-  //std::cout << "----------PlusStmtNode::eval()----------------" << std::endl;
+const Literal* SuiteNode::eval() const {
+  //std::cout << "----------SuiteNode::eval()----------------" << std::endl;
+
   const Literal* res = nullptr;
   auto it = stmts.begin();
   while (it != stmts.end()) {
@@ -636,12 +644,7 @@ const Literal* PlusStmtNode::eval() const {
   return res;
 }
 
-
-const Literal* SuiteNode::eval() const {
-  //std::cout << "----------SuiteNode::eval()----------------" << std::endl;
-  if (!node) {
-    throw std::string("suite node is nullptr!!");
-  }
+const Literal* NewStmtNode::eval() const {
   return node->eval();
 }
 

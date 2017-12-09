@@ -263,26 +263,27 @@ private:
   SuiteNode* node;
 };
 
-class PlusStmtNode : public Node {
+class SuiteNode : public Node {
 public:
-  PlusStmtNode() : Node() {
-     stmts.reserve(8);
+  SuiteNode() : Node() {
+    stmts.reserve(8);
   }
   virtual const Literal* eval() const;
   void insertStmt(Node* n) {
     stmts.push_back(n);
   }
+  //std::vector<Node*> getStmt
 private:
   std::vector<Node*> stmts;
 };
 
-class SuiteNode : public Node {
+class NewStmtNode : public Node {
 public:
-  SuiteNode(Node* n) : Node(), node(n) {}
+  NewStmtNode(Node* n), Node(), node(n) {}
   virtual const Literal* eval() const;
 private:
+  std::string funcName;
   Node* node;
-  //std::vector<Node*> stmts;
 };
 
 class CallNode : public Node {

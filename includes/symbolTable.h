@@ -6,7 +6,7 @@
 #include <map>
 #include <algorithm>
 
-class Literal;
+class Node;
 
 class SymbolTable {
 public:
@@ -14,11 +14,11 @@ public:
   ~SymbolTable() {
       table.clear();
   }
-  void setValue(const std::string& name, const Literal* val);
-  const Literal* getValue(const std::string& name) const;
+  void setValue(const std::string& name, const Node* val);
+  const Node* getValue(const std::string& name) const;
   void removeValue(const std::string& name);
 private:
-  std::map<std::string, const Literal*> table;
+  std::map<std::string, const Node*> table;
 };
 
 #endif

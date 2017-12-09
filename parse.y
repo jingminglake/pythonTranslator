@@ -108,10 +108,9 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
         }
 	| stmt
         {
-            $$ = $1;
-            if (cmdlineMode && $$) {
+            if (cmdlineMode) {
 	      try {
-		$$->eval();
+		$1->eval();
 	      } catch (const std::string& msg) {
 		std::cout << msg << std::endl;
 	      } catch (const char* msg) {
@@ -119,7 +118,9 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	      } catch (...) {
 		std::cout << "opps, something wrong happened!" << std::endl;
 	      }
-            }
+            } 
+	    $$ = new NewStmtNode($1);
+	    pool.add($$);
             printDebugMsg("stmt -> pick_NEWLINE_stmt");
         }
 	;
@@ -725,29 +726,26 @@ opt_AS_COMMA // Used in: except_clause
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
 	: simple_stmt
 	{
-	  // $$ = new SuiteNode($1);
-	  //pool.add($$);
 	  $$ = $1;
 	  printDebugMsg("simple_stmt -> suite");
         }
 	| NEWLINE INDENT plus_stmt DEDENT
         {
 	  printDebugMsg("NEWLINE INDENT plus_stmt DEDENT -> suite");
-	  $$ = new SuiteNode($3);
-	  pool.add($$);
+	  $$ = $3;
         }
 	;
 plus_stmt // Used in: suite, plus_stmt
 	: plus_stmt stmt
         {
           $$ = $1;
-          static_cast<PlusStmtNode*>($$)->insertStmt($2);
+          $$->insertStmt($2);
         }
 	| stmt
         {
-          $$ = new PlusStmtNode();
+          $$ = new SuiteNode();
           pool.add($$);
-          static_cast<PlusStmtNode*>($$)->insertStmt($1);
+          $$->insertStmt($1);
         }
 	;
 testlist_safe // Used in: list_for
