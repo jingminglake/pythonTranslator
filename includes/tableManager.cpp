@@ -13,12 +13,21 @@ void TableManager::setReturnFlag(bool flag) {
     returnFlag = flag;
 }
 
-void TableManager::pushScope() {
-    currentScope++;
+void TableManager::pushScope(const std::string& funcName) {
+  // recursion need not change Scope
+  if (funcName = currentFuncScope->getFuncName())
+    return;
+  // check if it is predefined in the current scope
+  if (currentFuncScope->checkName(funcName))
+    funcCallStack.push(currentFuncScope);
+    currentFuncScope = currentFuncScope->getFuncScope(funcName);
 }
 
 void TableManager::popScope() {
-    currentScope--;
+  if (!funcCallStack.empty()) {
+    currentFuncScope = funcCallStack.top();
+    funcCallStack.pop();
+  }
 }
 
 void TableManager::setCurrentFuncTable(const std::string& funcName) {
@@ -28,4 +37,8 @@ void TableManager::setCurrentFuncTable(const std::string& funcName) {
       throw up;
     }
     currentFunc = globalFuncs[funcName];
+}
+
+FuncScope* TableManager::getCurrentFuncScope() {
+  return currentFuncScope;
 }

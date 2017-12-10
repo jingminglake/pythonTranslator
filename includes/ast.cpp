@@ -22,7 +22,7 @@ const Literal* IdentNode::eval() const {
   //std::cout << "ident " << ident << "--->eval()"  << std::endl;
   const Literal* res = nullptr;
   try {
-    res = TableManager::getInstance().getEntry(ident)->eval();
+    res = TableManager::getInstance().getCurrentFuncScope()->getEntry(ident)->eval();
   } catch (const std::out_of_range& e) {
     std::cout << "NameError: name '" << e.what() <<"' is not defined" << std::endl;
   }
@@ -55,7 +55,7 @@ const Literal* AsgBinaryNode::eval() const {
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
   //std::cout << "AsgBinaryNode::eval() " << name << std::endl;
   const Literal* res = right->eval();
-  TableManager::getInstance().setEntry(name, res); // copy to current scope
+  TableManager::getInstance().getCurrentFuncScope().setEntry(name, res); // copy to current scope
   return res;
 }
 
@@ -70,10 +70,10 @@ const Literal* PlusAsgBinaryNode::eval() const {
   if (!TableManager::getInstance().checkVariable(name)) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getEntry(name);
+  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope().getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = *oldValue + *augVal;
-  TableManager::getInstance().setEntry(name, res); // copy to current scope
+  TableManager::getInstance().getCurrentFuncScope().setEntry(name, res); // copy to current scope
   return res;
 }
 
@@ -88,10 +88,10 @@ const Literal* MinAsgBinaryNode::eval() const {
   if (!TableManager::getInstance().checkVariable(name)) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getEntry(name);
+  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope().getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = *oldValue - *augVal;
-  TableManager::getInstance().setEntry(name, res); // copy to current scope
+  TableManager::getInstance().getCurrentFuncScope().setEntry(name, res); // copy to current scope
   return res;
 }
 
@@ -610,21 +610,13 @@ const Literal* FuncDefNode::eval() const {
   //std::cout << "----------FuncDefNode::eval()----------------" << std::endl;
   //std::cout << "funcName-->" << funcName << std::endl;
   TableManager &tm = TableManager::getInstance();
-  tm.pushScope();
-  if (tm.getCurrentScope() == 1) { 
-    TableManager::getInstance().setEntry(funcName, node);
-  }
-  else {
-    FuncTable *curFuncT = getCurrentFuncTable();
-    curFuncT->insertFunc(funcName, node); //should store func's suiteNode in table, because func's suiteNode will eval at the call point, not in the fundefNode eval time
-  }
-  tm.popScope();
+  FuncTable *curFuncT = tm.getCurrentFuncTable();
+  curFuncT->setEntry(funcName, node);
   return nullptr;
 }
 
 const Literal* SuiteNode::eval() const {
   //std::cout << "----------SuiteNode::eval()----------------" << std::endl;
-
   const Literal* res = nullptr;
   auto it = stmts.begin();
   while (it != stmts.end()) {
@@ -652,31 +644,19 @@ const Literal* NewStmtNode::eval() const {
 const Literal* CallNode::eval() const {
   //std::cout << "----------CallNode::eval()-------------" << std::endl;
   const Literal* res = nullptr;
-  TableManager& tm = TableManager::getInstance();
-  tm.pushScope();
-  FuncTable *curFuncT = tm.getCurrentFuncTable();
-  if ( !curFuncT.checkName( callObjectName, tm.getCurrentScope() ) ) {
-    try {
-      tm.setCurrentFuncTable();
-    } catch(std::exception e) {
-      throw e;
-    } catch(...) {
-      std::cout << "callNode " << callObjectName << " has something wrong!" << std::endl;
-    }
-    //curFuncT = tm.getCurrentFuncTable();
-    if ( dynamic_cast<SuiteNode>tm.getEntry(callObjectName) ) 
-      res = tm.getEntry(callObjectName)->eval();
-    else
-      throw callObjectName + " is not callable";
-  } else {
-    res = curFuncT.getSuite(tm.getCurrentScope()).getEntry(tm.getCurrentScope())->eval();
+  TableManager &tm = TableManager::getInstance();
+  try {
+    tm.pushScope( callObjectName );
+  } catch(const std::string& msg) {
+    std::cout << msg << std::endl;
   }
+  FuncTable *curFuncT = tm.getCurrentFuncTable();
+  res = curFuncT->getParentFuncScope()->getSuite()->eval();
  // std::cout << "function " << callObjectName << "-->call() " << std::endl;
   if (tm.getReturnFlag()) {
     tm.setReturnFlag(false);
   }
   tm.popScope();
-  //tm.setEntry(name, res);
   return res;
 }
 
