@@ -1,5 +1,5 @@
-#ifndef FUNCTABLE__H
-#define FUNCTABLE__H
+#ifndef FUNCSCOPE__H
+#define FUNCSCOPE__H
 
 #include <iostream>
 #include <string>
@@ -9,10 +9,10 @@
 
 class Node;
 
-class FuncTable {
+class FuncScope {
 public:
- FuncTable() : currentScope(0), table(){}
-  ~FuncTable();
+ FuncScope() : currentScope(0), table(){}
+  ~FuncScope();
   const Node* getEntry(const std::string& name);
   void setEntry(const std::string& name, const Node* val);
   void removeEntry(const std::string& name);
@@ -23,7 +23,7 @@ public:
 private:
   int scope;
   SymbolTable* table;   // fun's local variables --> value
-  std::unordered_map<const string&, FuncTable*> funcs;
+  vector<pair<const string&, FuncTable*> > funcs;
 };
 
 #endif

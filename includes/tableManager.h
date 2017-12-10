@@ -24,7 +24,6 @@ class TableManager {
  private:
     int currentScope;
     bool returnFlag;
-    std::vector<SymbolTable*>* currentGlobalFunc;
     SymbolTable* table; // global variables -->node && global funcs --> suiteNode
     std::unordered_map<const string&, FuncTable*> globalFuncs;  // global funcs's symbolTables
     TableManager() : currentScope(0), returnFlag(false), table(new SymbolTable()), globalFuncs() {}
