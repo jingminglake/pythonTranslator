@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 #include "symbolTable.h"
 
@@ -19,9 +19,8 @@ public:
   const Node* getEntry(const std::string& name);
   void setEntry(const std::string& name, const Node* val);
   void removeEntry(const std::string& name);
-  bool checkName(const std::string& name) const;
-  void insertFunc(const std::string& name, const Node* node);
-  const Node* getSuite();
+  bool isLocalVariable(const std::string& name) const;
+  const Node* getSuite(const std::string& funcName);
   int setCurrentScope(int scope);
   FuncScope* getFuncScope(const std::string& name);
   void setParentFuncScope(FuncScope *parentFuncS);
@@ -30,8 +29,8 @@ private:
   int scope;
   std::string funcName;
   FuncScope *parentFuncScope;
-  SymbolTable* table;   // fun's local variables --> value
-  std::vector<pair<const string&, FuncScope*> > funcs;
+  SymbolTable* table;   // fun's local variables --> value  && fun's local subFuncs --> suiteNode
+  std::unordered_map<std::string, FuncScope*> funcs; // fun's local subFuncs --> its FuncScope
 };
 
 #endif

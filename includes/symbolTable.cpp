@@ -19,8 +19,3 @@ void SymbolTable::removeValue(const std::string& name) {
   auto it = table.find(name);
   table.erase(it);
 }
-
-bool SymbolTable::checkName(const std::string& name) const {
-  std::map<std::string, const Node*>::const_iterator it = table.find(name);
-  return it != table.end();
-}

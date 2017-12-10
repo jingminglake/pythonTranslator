@@ -17,7 +17,6 @@ public:
   void setValue(const std::string& name, const Node* val);
   const Node* getValue(const std::string& name) const;
   void removeValue(const std::string& name);
-  bool checkName(const std::string& name) const;
 private:
   std::map<std::string, const Node*> table;
 };

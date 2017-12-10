@@ -739,13 +739,13 @@ plus_stmt // Used in: suite, plus_stmt
 	: plus_stmt stmt
         {
           $$ = $1;
-          $$->insertStmt($2);
+          static_cast<SuiteNode*>($$)->insertStmt($2);
         }
 	| stmt
         {
           $$ = new SuiteNode();
           pool.add($$);
-          $$->insertStmt($1);
+          static_cast<SuiteNode*>($$)->insertStmt($1);
         }
 	;
 testlist_safe // Used in: list_for

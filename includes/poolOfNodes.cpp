@@ -1,4 +1,5 @@
 #include "node.h"
+#include "funScope.h"
 #include "poolOfNodes.h"
 
 PoolOfNodes& PoolOfNodes::getInstance() {
@@ -11,4 +12,8 @@ void PoolOfNodes::drainThePool() {
     delete node;
   }
   nodePool.clear();
+  for ( FuncScope* funcS : funcScopePool ) {
+    delete funcS;
+  }
+  funcScopePool.clear();
 }

@@ -272,17 +272,15 @@ public:
   void insertStmt(Node* n) {
     stmts.push_back(n);
   }
-  //std::vector<Node*> getStmt
 private:
   std::vector<Node*> stmts;
 };
 
 class NewStmtNode : public Node {
 public:
-  NewStmtNode(Node* n), Node(), node(n) {}
+ NewStmtNode(Node* n) : Node(), node(n) {}
   virtual const Literal* eval() const;
 private:
-  std::string funcName;
   Node* node;
 };
 

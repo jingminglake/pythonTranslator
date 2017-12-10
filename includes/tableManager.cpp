@@ -1,8 +1,13 @@
 #include "tableManager.h"
+#include "poolOfNodes.h"
 
 TableManager& TableManager::getInstance() {
    static TableManager instance;
    return instance;
+}
+
+TableManager() : currentFuncScope( new FuncScope() ), returnFlag(false), funcCallStack() {
+  PoolOfNodes::getInstance().addFuncScopeNode(currentFuncScope);
 }
 
 bool TableManager::getReturnFlag() {
@@ -28,15 +33,6 @@ void TableManager::popScope() {
     currentFuncScope = funcCallStack.top();
     funcCallStack.pop();
   }
-}
-
-void TableManager::setCurrentFuncTable(const std::string& funcName) {
-    if (!tm.checkName(funcName)) {
-      std::cout << "global function " << funcName << " not found" << std::endl;
-      std::exception up = std::exception();
-      throw up;
-    }
-    currentFunc = globalFuncs[funcName];
 }
 
 FuncScope* TableManager::getCurrentFuncScope() {
