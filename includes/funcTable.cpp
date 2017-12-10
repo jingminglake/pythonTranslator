@@ -33,26 +33,16 @@ void FuncTable::removeEntry(const std::string& name) {
     tables[currentScope]->removeValue(name);
 }
 
-bool FuncTable::checkName(const std::string& name) const {
-    int tempScope = currentScope;
-    while (tempScope >= 0) {
-        //std::cout << "----------CallNode::eval()-22------------" << tempScope << std::endl;
-        const Node* val = funcTables[tempScope]->getValue(name);
+bool FuncTable::checkName(const std::string& name, int currentScope) const {
+    while (currentScope >= 0) {
+        const Node* val = tables[currentScope]->getValue(name);
         if (val) {
             return true;
         } else {
-            tempScope--;
+            currentScope--;
         }
     }
     return false;
-}
-
-void FuncTable::pushScope() {
-    currentScope++;
-}
-
-void FuncTable::popScope() {
-    currentScope--;
 }
 
 bool FuncTable::checkVariable(const std::string& name) const {
@@ -60,23 +50,14 @@ bool FuncTable::checkVariable(const std::string& name) const {
     return val ? true : false;
 }
 
-void FuncTable::insertFunc(const std::string& name, Node* node) { 
-    if (currentScope == (int)tables.size()) {
-	tables.push_back(new SymbolTable());
-	funcTables.push_back(new FuncTable());
-    }
-    funcTables[currentScope]->setValue(name, node);
+void FuncTable::insertFunc(const std::string& name, Node* node) {
+    Symboltable * st = new SymbolTable();
+    st.setValue(name, node);
+    tables.push_back(st);
 }
 
-const Node* FuncTable::getSuite(const std::string& name) {
-    int tempScope = currentScope;
-    while (tempScope >= 1) {
-        const Node* val = funcTables[tempScope]->getValue(name);
-        if (val) {
-            return val;
-        } else {
-            tempScope--;
-        }
-    }
-    throw std::out_of_range(name);
+const Node* FuncTable::getSuite(int currentScope) {
+  if(currentScope > tables)
+    throw std::out_of_range(currentScope);
+  return tables[currentScope];
 }

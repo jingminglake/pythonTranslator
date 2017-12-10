@@ -11,19 +11,19 @@ class Node;
 
 class FuncTable {
 public:
-  FuncTable() : table(), funcTables, currentScope(0){}
+ FuncTable() : currentScope(0), table(){}
   ~FuncTable();
   const Node* getEntry(const std::string& name);
   void setEntry(const std::string& name, const Node* val);
   void removeEntry(const std::string& name);
   bool checkName(const std::string& name) const;
   void insertFunc(const std::string& name, const Node* node);
-  void pushScope();
-  void popScope();
-  int getCurrentScope();
+  const Node* getSuite();
+  int setCurrentScope(int scope);
 private:
-  int currentScope;
-  std::vector<SymbolTable*> tables;   // fun's local variables --> value
+  int scope;
+  SymbolTable* table;   // fun's local variables --> value
+  std::unordered_map<const string&, FuncTable*> funcs;
 };
 
 #endif

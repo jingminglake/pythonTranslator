@@ -10,10 +10,12 @@
 class TableManager {
  public:
     static TableManager& getInstance();
-    void insertFunc(const std::string& name, Node* node);
+    void setEntry(const std::string& name, const Node* val);
+    const Node* getEntry(const std::string& name);
     void removeEntry(const std::string& name);
     bool checkName(const std::string& name) const;
-    FuncTable* getFuncTable(const std::string& name);
+    void setCurrentFuncTable(const std::string& name);
+    FuncTable* getCurrentFuncTable();
     bool getReturnFlag();
     void setReturnFlag(bool);
     void pushScope();
@@ -22,8 +24,9 @@ class TableManager {
  private:
     int currentScope;
     bool returnFlag;
-    SymbolTable* table; // global variables
-    std::unordered_map<const string& funcName, FuncTable*> globalFuncs;  // global funcs
+    std::vector<SymbolTable*>* currentGlobalFunc;
+    SymbolTable* table; // global variables -->node && global funcs --> suiteNode
+    std::unordered_map<const string&, FuncTable*> globalFuncs;  // global funcs's symbolTables
     TableManager() : currentScope(0), returnFlag(false), table(new SymbolTable()), globalFuncs() {}
     ~TableManager() {
        delete table;

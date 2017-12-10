@@ -4,10 +4,10 @@
 #include "literal.h"
 
 const Node* SymbolTable::getValue(const std::string& name) const {
-  std::map<std::string, const Literal*>::const_iterator it = table.find(name);
+  std::map<std::string, const Node*>::const_iterator it = table.find(name);
   // if ( it == table.end() ) throw name+std::string(" not found");
   if ( it == table.end() )
-      return NULL;
+      return nullptr;
   return it->second;
 }
 

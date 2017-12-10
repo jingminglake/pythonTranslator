@@ -600,24 +600,25 @@ const Literal* NotEqualNode::eval() const {
 }
 
 FuncDefNode::FuncDefNode(const char* name, Node* suiteNode) : Node(), funcName(std::string(name)), node(static_cast<SuiteNode*>(suiteNode) ) {
-  TableManager::getInstance().pushScope();
-  SymbolTable* t = new SymbolTable();
-  TableManager::getInstance().insertFunc(funcName, );
-  TableManager::getInstance().pushScope();
+  //TableManager::getInstance().pushScope();
+  //SymbolTable* t = new SymbolTable();
+  //TableManager::getInstance().insertFunc(funcName, );
+  //TableManager::getInstance().pushScope();
 }
 
 const Literal* FuncDefNode::eval() const {
   //std::cout << "----------FuncDefNode::eval()----------------" << std::endl;
   //std::cout << "funcName-->" << funcName << std::endl;
-
-  if (TableManager::getInstance().getCurrentScope() == 0) 
-    TableManager::getInstance().insertFunc(funcName, );
-  
-
-  FuncTable *funcT = new FuncTable();
-  funcT->pushScope();
-  funcT->insertFunc(funcName, node); //should store func's suiteNode in table, because func's suiteNode will eval at the call point, not in the fundefNode eval time
-  TableManager::getInstance().popScope();
+  TableManager &tm = TableManager::getInstance();
+  tm.pushScope();
+  if (tm.getCurrentScope() == 1) { 
+    TableManager::getInstance().setEntry(funcName, node);
+  }
+  else {
+    FuncTable *curFuncT = getCurrentFuncTable();
+    curFuncT->insertFunc(funcName, node); //should store func's suiteNode in table, because func's suiteNode will eval at the call point, not in the fundefNode eval time
+  }
+  tm.popScope();
   return nullptr;
 }
 
@@ -653,18 +654,24 @@ const Literal* CallNode::eval() const {
   const Literal* res = nullptr;
   TableManager& tm = TableManager::getInstance();
   tm.pushScope();
-  if (!tm.checkName(callObjectName)) {
-    std::cout << "function " << callObjectName << " not found" << std::endl;
-    std::exception up = std::exception();
-    throw up;
+  FuncTable *curFuncT = tm.getCurrentFuncTable();
+  if ( !curFuncT.checkName( callObjectName, tm.getCurrentScope() ) ) {
+    try {
+      tm.setCurrentFuncTable();
+    } catch(std::exception e) {
+      throw e;
+    } catch(...) {
+      std::cout << "callNode " << callObjectName << " has something wrong!" << std::endl;
+    }
+    //curFuncT = tm.getCurrentFuncTable();
+    if ( dynamic_cast<SuiteNode>tm.getEntry(callObjectName) ) 
+      res = tm.getEntry(callObjectName)->eval();
+    else
+      throw callObjectName + " is not callable";
+  } else {
+    res = curFuncT.getSuite(tm.getCurrentScope()).getEntry(tm.getCurrentScope())->eval();
   }
-  // std::cout << "function " << callObjectName << "-->call() " << std::endl;
-  res = tm.getSuite(callObjectName)->eval();
-  /*if (tm.checkVariable("__RETURN__")) {
-    if (tm.getEntry("__RETURN__"))
-      res = tm.getEntry("__RETURN__");
-    tm.removeEntry("__RETURN__");
-    }*/
+ // std::cout << "function " << callObjectName << "-->call() " << std::endl;
   if (tm.getReturnFlag()) {
     tm.setReturnFlag(false);
   }

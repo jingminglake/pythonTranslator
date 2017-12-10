@@ -20,3 +20,12 @@ void TableManager::pushScope() {
 void TableManager::popScope() {
     currentScope--;
 }
+
+void TableManager::setCurrentFuncTable(const std::string& funcName) {
+    if (!tm.checkName(funcName)) {
+      std::cout << "global function " << funcName << " not found" << std::endl;
+      std::exception up = std::exception();
+      throw up;
+    }
+    currentFunc = globalFuncs[funcName];
+}
