@@ -1,5 +1,5 @@
-#ifndef __POOLOFNODES__
-#define __POOLOFNODES__
+#ifndef __POOLOFNODES__H
+#define __POOLOFNODES__H
 #include "node.h"
 #include "funcScope.h"
 #include "poolOfNodes.h"

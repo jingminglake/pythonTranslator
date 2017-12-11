@@ -85,13 +85,10 @@ file_input // Used in: start
                         (*it)->eval();
                       } catch (const std::string& msg) {
                           std::cout << msg << std::endl;
-			  delete $1;
                       } catch (const char* msg) {
                           std::cout << msg << std::endl;
-			  delete $1;
                       } catch (...) {
                           std::cout << "opps, something wrong happened!" << std::endl;
-			  delete $1;
                       } 
                     }
                     ++it;
@@ -119,7 +116,7 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	      } catch (...) {
 		std::cout << "opps, something wrong happened!" << std::endl;
 	      }
-            } 
+            }
 	    $$ = new NewStmtNode($1);
 	    pool.add($$);
             printDebugMsg("stmt -> pick_NEWLINE_stmt");

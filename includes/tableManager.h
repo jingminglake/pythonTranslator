@@ -21,7 +21,7 @@ class TableManager {
     bool returnFlag;
     std::stack<FuncScope* > funcCallStack;
     TableManager();
-    ~TableManager() {}
+    ~TableManager(){};
 };
 
 #endif

@@ -67,6 +67,7 @@ FuncScope* FuncScope::getFuncScope(const std::string& name) {
 void  FuncScope::setParentFuncScope(FuncScope *parentFuncS) {
   parentFuncScope = parentFuncS;
 }
+
 FuncScope * FuncScope::getParentFuncScope() {
   return parentFuncScope;
 }

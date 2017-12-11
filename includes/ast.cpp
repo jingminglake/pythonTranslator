@@ -26,7 +26,7 @@ const Literal* IdentNode::eval() const {
   try {
     res = TableManager::getInstance().getCurrentFuncScope()->getEntry(ident)->eval();
   } catch (const std::out_of_range& e) {
-    std::cout << "NameError: name '" << e.what() <<"' is not defined" << std::endl;
+    throw std::string("NameError: name '") + e.what() + std::string("' is not defined");
   }
   return res;
 }
