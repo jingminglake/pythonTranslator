@@ -1,12 +1,13 @@
 #include "tableManager.h"
 #include "poolOfNodes.h"
+#include "funcScope.h"
 
 TableManager& TableManager::getInstance() {
    static TableManager instance;
    return instance;
 }
 
-TableManager() : currentFuncScope( new FuncScope() ), returnFlag(false), funcCallStack() {
+TableManager::TableManager() : currentFuncScope( new FuncScope("__MAIN__") ), returnFlag(false), funcCallStack() {
   PoolOfNodes::getInstance().addFuncScopeNode(currentFuncScope);
 }
 
@@ -20,10 +21,10 @@ void TableManager::setReturnFlag(bool flag) {
 
 void TableManager::pushScope(const std::string& funcName) {
   // recursion need not change Scope
-  if (funcName = currentFuncScope->getFuncName())
+  if (funcName == currentFuncScope->getFuncName())
     return;
   // check if it is predefined in the current scope
-  if (currentFuncScope->checkName(funcName))
+  if (currentFuncScope->isLocalVariable(funcName))
     funcCallStack.push(currentFuncScope);
     currentFuncScope = currentFuncScope->getFuncScope(funcName);
 }

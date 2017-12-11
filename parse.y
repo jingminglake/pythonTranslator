@@ -3,6 +3,7 @@
         #include <iostream>
         #include <vector>
         #include "includes/ast.h"
+        #include "includes/literal.h"
 	int yylex (void);
 	extern char *yytext;
 	void yyerror (const char *);
@@ -740,12 +741,14 @@ plus_stmt // Used in: suite, plus_stmt
         {
           $$ = $1;
           static_cast<SuiteNode*>($$)->insertStmt($2);
+          printDebugMsg("plus_stmt stmt -> plus_stmt");
         }
 	| stmt
         {
           $$ = new SuiteNode();
           pool.add($$);
           static_cast<SuiteNode*>($$)->insertStmt($1);
+          printDebugMsg("stmt -> plus_stmt");
         }
 	;
 testlist_safe // Used in: list_for
@@ -799,7 +802,8 @@ and_test // Used in: or_test, and_test
          }
 	| and_test AND not_test
          {
-           printDebugMsg("and_test AND not_test  -> and_test"); }
+           printDebugMsg("and_test AND not_test  -> and_test");
+         }
 	;
 not_test // Used in: and_test, not_test
 	: NOT not_test

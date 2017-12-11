@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <iomanip>
 #include "ast.h"
+#include "literal.h"
+#include "funcScope.h"
 #include "tableManager.h"
 
 void freeAST(Node* node) {
@@ -616,8 +618,9 @@ const Literal* FuncDefNode::eval() const {
 }
 
 const Literal* SuiteNode::eval() const {
-  //std::cout << "----------SuiteNode::eval()----------------" << std::endl;
+  // std::cout << "----------SuiteNode::eval()----------------" << std::endl;
   const Literal* res = nullptr;
+  //std::cout << "----------SuiteNode::size----------------" << stmts.size() << std::endl;
   auto it = stmts.begin();
   while (it != stmts.end()) {
     if (TableManager::getInstance().getReturnFlag())

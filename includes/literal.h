@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <iomanip>
 
+//class PoolOfNodes;
+
 class Literal : public Node {
 public:
   virtual ~Literal() {}

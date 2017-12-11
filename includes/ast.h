@@ -6,8 +6,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <map>
-#include "literal.h"
+#include "node.h"
 
 extern void yyerror(const char*);
 extern void yyerror(const char*, const char);

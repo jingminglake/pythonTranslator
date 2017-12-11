@@ -5,8 +5,8 @@
 #include <vector>
 #include <stack>
 #include <unordered_map>
-#include "symbolTable.h"
-#include "funcScope.h"
+
+class FuncScope;
 
 class TableManager {
  public:

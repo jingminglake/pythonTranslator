@@ -3,44 +3,41 @@
 #include "funcScope.h"
 #include "node.h"
 #include "poolOfNodes.h"
+#include "ast.h"
 
-class SuiteNode;
 
 FuncScope::~FuncScope() {
     delete table;
-    for (auto& func: funcs)
-      delete func->second;
     funcs.clear();
 }
 
-const std::string getFuncName() const {
+const std::string FuncScope::getFuncName() const {
   return funcName;
 }
 
 const Node* FuncScope::getEntry(const std::string& name) {
-  if (checkName(name))
-    return table[name];
+  if (isLocalVariable(name))
+    return table->getValue(name);
   else if (!parentFuncScope)
     throw std::out_of_range(name);
   else 
-    return parentFuncScope->getEntry();
+    return parentFuncScope->getEntry(name);
 }
 
 void FuncScope::setEntry(const std::string& name, const Node* val) {
-    tables->setValue(name, val);
-    if ( dynamic_cast<SuiteNode*>(val) ) { // if val is a suiteNode, then we should create its FuncScope
-      FuncScope *newFunc = new FuncScope(name, this);
-      PoolOfNodes::getInstance().addFuncScopeNode(newFunc);
-      //newFunc->setParentFuncScope(this);
-      std::unordered_map<std::string, FuncTable*>::iterator = func.find(name); 
-      if (it != funcs.end()) { // if it contains same name func, then should be override
-	//delete it->second; // remove the old one
-          it->second = newFunc; // create a new one
-	}
-      }
-      // if it not contains same name func, create a new one directly
-      funcs.insert(make_pair(name, newFunc));
+  table->setValue(name, val);
+  if ( dynamic_cast<const SuiteNode*>(val) ) { // if val is a suiteNode, then we should create its FuncScope
+    FuncScope *newFuncS = new FuncScope(name, this);
+    PoolOfNodes::getInstance().addFuncScopeNode(newFuncS);
+    //newFunc->setParentFuncScope(this);
+    std::unordered_map<std::string, FuncScope*>::iterator it = funcs.find(name);
+    if (it != funcs.end()) { // if it contains same name func, then should be override
+      //delete it->second; // remove the old one
+      it->second = newFuncS; // create a new one
+    } else { // if it not contains same name func, create a new one directly
+      funcs.insert(make_pair(name, newFuncS));
     }
+  }
 }
 
 void FuncScope::removeEntry(const std::string& name) {
@@ -52,17 +49,24 @@ bool FuncScope::isLocalVariable(const std::string& name) const {
 }
 
 const Node* FuncScope::getSuite(const std::string& funcName) {
-  return table[funcName];
+  return table->getValue(funcName);
 }
 
 FuncScope* FuncScope::getFuncScope(const std::string& name) {
-  if( !checkName(name) )
+  if( !isLocalVariable(name) )
     throw std::string("something wrong in getFuncScope: ") + name;
-  if ( dynamic_cast<SuiteNode*>(table[name]))
+  if ( !dynamic_cast<const SuiteNode*>( table->getValue(name) ) )
     throw std::string("TypeError: object '") + name + std::string("' is not callable");
   for (auto& func : funcs) {
     if (func.first == name)
       return func.second;
   }
   throw std::string("ss wrong in getFuncScope: ") + name;
+}
+
+void  FuncScope::setParentFuncScope(FuncScope *parentFuncS) {
+  parentFuncScope = parentFuncS;
+}
+FuncScope * FuncScope::getParentFuncScope() {
+  return parentFuncScope;
 }

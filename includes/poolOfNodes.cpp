@@ -1,5 +1,7 @@
+#ifndef __POOLOFNODES__
+#define __POOLOFNODES__
 #include "node.h"
-#include "funScope.h"
+#include "funcScope.h"
 #include "poolOfNodes.h"
 
 PoolOfNodes& PoolOfNodes::getInstance() {
@@ -17,3 +19,5 @@ void PoolOfNodes::drainThePool() {
   }
   funcScopePool.clear();
 }
+
+#endif
