@@ -10,7 +10,7 @@
         // extern YYSTYPE yylval;
         void deleteName(char *name);
         PoolOfNodes& pool = PoolOfNodes::getInstance();
-        bool myDebug = false;
+        bool myDebug = true;
         void printDebugMsg(const char *);
         void printDebugMsg(const std::string&);
         extern bool cmdlineMode;
@@ -167,19 +167,43 @@ funcdef // Used in: decorated, compound_stmt
 	;
 parameters // Used in: funcdef
 	: LPAR varargslist RPAR
+	{ 
+	  printDebugMsg("LPAR varargslist RPAR -> parameters");
+        }
 	| LPAR RPAR
+        { 
+	  printDebugMsg(" -> parameters"); 
+        }
 	;
 varargslist // Used in: parameters, old_lambdef, lambdef
 	: star_fpdef_COMMA pick_STAR_DOUBLESTAR
+        { 
+	  printDebugMsg("star_fpdef_COMMA pick_STAR_DOUBLESTAR -> varargslist");
+        }
 	| star_fpdef_COMMA fpdef opt_EQUAL_test opt_COMMA
+        {
+	  printDebugMsg("star_fpdef_COMMA fpdef opt_EQUAL_test opt_COMMA -> varargslist");
+        }
 	;
 opt_EQUAL_test // Used in: varargslist, star_fpdef_COMMA
 	: EQUAL test
+	{
+          printDebugMsg("EQUAL_test -> opt_EQUAL_test"); 
+        }
 	| %empty
+	{
+	  printDebugMsg(" -> opt_EQUAL_test");
+        }
 	;
 star_fpdef_COMMA // Used in: varargslist, star_fpdef_COMMA
 	: star_fpdef_COMMA fpdef opt_EQUAL_test COMMA
+	{
+	  printDebugMsg("star_fpdef_COMMA fpdef opt_EQUAL_test COMMA -> star_fpdef_COMMA");
+        }
 	| %empty
+        {
+	  printDebugMsg(" -> star_fpdef_COMMA");
+        }
 	;
 opt_DOUBLESTAR_NAME // Used in: pick_STAR_DOUBLESTAR
 	: COMMA DOUBLESTAR NAME
@@ -191,31 +215,55 @@ opt_DOUBLESTAR_NAME // Used in: pick_STAR_DOUBLESTAR
 pick_STAR_DOUBLESTAR // Used in: varargslist
 	: STAR NAME opt_DOUBLESTAR_NAME
         {
+	  printDebugMsg("STAR NAME opt_DOUBLESTAR_NAME -> pick_STAR_DOUBLESTAR");
           deleteName($2);
         }
 	| DOUBLESTAR NAME
         {
+	  printDebugMsg("DOUBLESTAR NAME -> pick_STAR_DOUBLESTAR");
           deleteName($2);
         } 
 	;
 opt_COMMA // Used in: varargslist, opt_test, opt_test_2, testlist_safe, listmaker, testlist_comp, pick_for_test_test, pick_for_test, pick_argument
 	: COMMA
+        {
+	  printDebugMsg("COMMA -> opt_COMMA");
+        }
 	| %empty
+        {
+	  printDebugMsg(" -> opt_COMMA");
+        }
 	;
 fpdef // Used in: varargslist, star_fpdef_COMMA, fplist, star_fpdef_notest
 	: NAME
         {
+	  printDebugMsg("NAME -> fpdef");
           deleteName($1);
         }
 	| LPAR fplist RPAR
+        {
+	  printDebugMsg("LPAR fplist RPAR -> fpdef");
+        }
 	;
 fplist // Used in: fpdef
 	: fpdef star_fpdef_notest COMMA
+        {
+	  printDebugMsg("fpdef star_fpdef_notest COMMA -> fplist");
+        }
 	| fpdef star_fpdef_notest
+        {
+	  printDebugMsg("fpdef star_fpdef_notest -> fplist");
+        }
 	;
 star_fpdef_notest // Used in: fplist, star_fpdef_notest
 	: star_fpdef_notest COMMA fpdef
+        {
+	  printDebugMsg("star_fpdef_notest COMMA fpdef -> star_fpdef_notest");
+        }
 	| %empty
+        {
+	  printDebugMsg(" -> star_fpdef_notest");
+        }
 	;
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
 	: simple_stmt
