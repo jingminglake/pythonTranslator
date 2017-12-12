@@ -10,7 +10,7 @@
         // extern YYSTYPE yylval;
         void deleteName(char *name);
         PoolOfNodes& pool = PoolOfNodes::getInstance();
-        bool myDebug = true;
+        bool myDebug = false;
         void printDebugMsg(const char *);
         void printDebugMsg(const std::string&);
         extern bool cmdlineMode;
@@ -166,9 +166,14 @@ decorated // Used in: compound_stmt
 funcdef // Used in: decorated, compound_stmt
         : DEF NAME parameters COLON suite
 	{
-          if ($3)
+          if ($3) {
+            //std::cout << "funcdef size: " << $3->size() << std::endl;
 	    $$ = new FuncDefNode($2, *$3, $5);
-          $$ = new FuncDefNode($2, $5);
+          }
+          else {
+            //std::cout << $2 << " funcdef size2 : 0"  << std::endl;
+            $$ = new FuncDefNode($2, $5);
+          }
           pool.add($$);
           delete $3;
           deleteName($2);

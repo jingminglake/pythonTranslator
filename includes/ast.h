@@ -261,6 +261,7 @@ public:
   FuncDefNode(const char* name, Node* suiteNode);
   virtual const Literal* eval() const;
   void evalParameter(std::vector<Node*>& actualParameter) const;
+  const Literal* evalSuite() const;
 private:
   std::string funcName;
   std::vector<Node*> formalParameter;
@@ -293,7 +294,7 @@ public:
   TrailerNode(std::vector<Node*>* n) : Node() {
     if(n)
       node = *n;
-    std::cout << "----------TrailerNode----------------" << std::endl;
+    //std::cout << "----------TrailerNode----------------" << std::endl;
   }
   virtual const Literal* eval() const;
   std::vector<Node*> getNode() const;

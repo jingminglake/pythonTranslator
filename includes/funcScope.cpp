@@ -26,7 +26,7 @@ const Node* FuncScope::getEntry(const std::string& name) {
 
 void FuncScope::setEntry(const std::string& name, const Node* val) {
   table->setValue(name, val);
-  if ( dynamic_cast<const SuiteNode*>(val) ) { // if val is a suiteNode, then we should create its FuncScope
+  if ( dynamic_cast<const FuncDefNode*>(val) ) { // if val is a FuncDefNode, then we should create its FuncScope
     FuncScope *newFuncS = new FuncScope(name, this);
     PoolOfNodes::getInstance().addFuncScopeNode(newFuncS);
     //newFunc->setParentFuncScope(this);
@@ -48,14 +48,14 @@ bool FuncScope::isLocalVariable(const std::string& name) const {
   return table->getValue(name) ? true : false;
 }
 
-const Node* FuncScope::getSuite(const std::string& funcName) {
+const Node* FuncScope::getFuncDefNode(const std::string& funcName) {
   return table->getValue(funcName);
 }
 
 FuncScope* FuncScope::getFuncScope(const std::string& name) {
   if( !isLocalVariable(name) )
     throw std::string("something wrong in getFuncScope: ") + name;
-  if ( !dynamic_cast<const SuiteNode*>( table->getValue(name) ) )
+  if ( !dynamic_cast<const FuncDefNode*>( table->getValue(name) ) )
     throw std::string("TypeError: object '") + name + std::string("' is not callable");
   for (auto& func : funcs) {
     if (func.first == name)
