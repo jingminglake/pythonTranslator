@@ -601,11 +601,16 @@ const Literal* NotEqualNode::eval() const {
   return res; 
 }
 
-FuncDefNode::FuncDefNode(const char* name, Node* suiteNode) : Node(), funcName(std::string(name)), node(static_cast<SuiteNode*>(suiteNode) ) {
-  //TableManager::getInstance().pushScope();
-  //SymbolTable* t = new SymbolTable();
-  //TableManager::getInstance().insertFunc(funcName, );
-  //TableManager::getInstance().pushScope();
+FuncDefNode::FuncDefNode(const char* name, std::vector<Node*> parameter, Node* suiteNode) : Node(), funcName( std::string(name) ), formalParameter(parameter), node(static_cast<SuiteNode*>(suiteNode) ) {
+  std::cout << "----------FuncDefNode::FuncDefNode()----------------" << std::endl;
+  for (Node* n : parameter) {
+    if (!dynamic_cast<IdentNode*>(n)) {
+      throw std::string("SyntaxError: in function '") + funcName + std::string("' invalid parameter syntax");
+    }
+  }
+}
+
+FuncDefNode::FuncDefNode(const char* name, Node* suiteNode) : Node(), funcName( std::string(name) ), formalParameter(), node(static_cast<SuiteNode*>(suiteNode) ) {
 }
 
 const Literal* FuncDefNode::eval() const {
@@ -615,6 +620,26 @@ const Literal* FuncDefNode::eval() const {
   FuncScope *curFuncT = tm.getCurrentFuncScope();
   curFuncT->setEntry(funcName, node);
   return nullptr;
+}
+
+void FuncDefNode::evalParameter(std::vector<Node*>& actualParameter) const {
+  int fpSize = (int) formalParameter.size();
+  int apSize = (int) actualParameter.size();
+  std::string fpNum = fpSize ? std::to_string(fpSize) : "no";
+  if ( fpSize != apSize )
+    throw std::string("TypeError:") + funcName +  std::string("() takes exactly ") + fpNum  
+             + std::string("arguments (") + std::to_string(apSize) + std::string(" given)");
+  
+  for (int i = 0; i < fpSize; i++) {
+    const std::string fpName = static_cast<IdentNode*>(formalParameter[i])->getIdent();
+    const Literal* res = nullptr;
+    try {
+      res = actualParameter[i]->eval();
+    } catch(const std::string& msg) {
+      throw std::string("In function '") + funcName + std::string("' call: ") + msg;
+    }
+    TableManager::getInstance().getCurrentFuncScope()->setEntry(fpName, res);
+  }
 }
 
 const Literal* SuiteNode::eval() const {
@@ -645,7 +670,7 @@ const Literal* NewStmtNode::eval() const {
 }
 
 const Literal* CallNode::eval() const {
-  //std::cout << "----------CallNode::eval()-------------" << std::endl;
+  std::cout << "----------CallNode::eval()-------------" << std::endl;
   const Literal* res = nullptr;
   TableManager &tm = TableManager::getInstance();
   try {
@@ -654,7 +679,17 @@ const Literal* CallNode::eval() const {
     std::cout << msg << std::endl;
   }
   FuncScope *curFuncT = tm.getCurrentFuncScope();
-  res = curFuncT->getParentFuncScope()->getSuite( callObjectName )->eval();
+  const FuncDefNode* funcNode = static_cast<const FuncDefNode*>( curFuncT->getParentFuncScope()->getSuite( callObjectName ) );
+  // eval the parameter part
+  try {
+    std::vector<Node*> actualParameter;
+    if ( ((int) actualParameters.size() ) != 0)
+      actualParameter = actualParameters[0]->getNode();
+    funcNode->evalParameter(actualParameter);
+  } catch(const std::string& msg) {
+    throw msg;
+  }
+  res = funcNode->eval();
  // std::cout << "function " << callObjectName << "-->call() " << std::endl;
   if (tm.getReturnFlag()) {
     tm.setReturnFlag(false);
@@ -697,8 +732,11 @@ const Literal* PrintNode::eval() const {
 }
 
 const Literal* TrailerNode::eval() const {
-  if (node)
-     node->eval();
+  // if (node)
+  //   node->eval();
   return nullptr;
 }
 
+std::vector<Node*> TrailerNode::getNode() const {
+  return node;
+}

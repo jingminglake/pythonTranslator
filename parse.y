@@ -60,8 +60,9 @@
 %type<node> stmt print_stmt opt_test opt_yield_test pick_yield_expr_testlist_comp star_EQUAL_R
 %type<node> compound_stmt flow_stmt return_stmt
 %type<node> plus_stmt funcdef if_stmt suite trailer
-%type<node> opt_arglist arglist pick_NEWLINE_stmt
-%type<nodes> star_trailer star_NEWLINE_stmt
+%type<node> pick_NEWLINE_stmt argument pick_argument fpdef
+%type<nodes> star_trailer star_NEWLINE_stmt arglist opt_arglist star_argument_COMMA
+%type<nodes> star_fpdef_COMMA varargslist parameters
 %token<fltNumber> FLOATNUMBER
 %token<intNumber> INTNUMBER TRUE FALSE
 %right EQUAL
@@ -144,9 +145,15 @@ decorator // Used in: decorators
 	;
 opt_arglist // Used in: decorator, trailer
 	: arglist
-        { $$ = $1;}
+        {
+          $$ = $1;
+          printDebugMsg("arglist -> opt_arglist");
+        }
 	| %empty
-	{ $$ = nullptr; }
+	{
+          $$ = nullptr;
+          printDebugMsg(" -> opt_arglist");
+        }
 	;
 decorators // Used in: decorators, decorated
 	: decorators decorator
@@ -159,29 +166,37 @@ decorated // Used in: compound_stmt
 funcdef // Used in: decorated, compound_stmt
         : DEF NAME parameters COLON suite
 	{
+          if ($3)
+	    $$ = new FuncDefNode($2, *$3, $5);
           $$ = new FuncDefNode($2, $5);
           pool.add($$);
+          delete $3;
           deleteName($2);
           printDebugMsg("DEF NAME parameters COLON suite -> funcdef");
         }
 	;
 parameters // Used in: funcdef
 	: LPAR varargslist RPAR
-	{ 
+	{
+          $$ = $2;
 	  printDebugMsg("LPAR varargslist RPAR -> parameters");
         }
 	| LPAR RPAR
-        { 
-	  printDebugMsg(" -> parameters"); 
+        {
+          $$ = nullptr;
+	  printDebugMsg("LPAR RPAR -> parameters");
         }
 	;
 varargslist // Used in: parameters, old_lambdef, lambdef
 	: star_fpdef_COMMA pick_STAR_DOUBLESTAR
         { 
+          $$ = $1;
 	  printDebugMsg("star_fpdef_COMMA pick_STAR_DOUBLESTAR -> varargslist");
         }
 	| star_fpdef_COMMA fpdef opt_EQUAL_test opt_COMMA
         {
+          $$ = $1;
+          $$->push_back($2);
 	  printDebugMsg("star_fpdef_COMMA fpdef opt_EQUAL_test opt_COMMA -> varargslist");
         }
 	;
@@ -198,10 +213,14 @@ opt_EQUAL_test // Used in: varargslist, star_fpdef_COMMA
 star_fpdef_COMMA // Used in: varargslist, star_fpdef_COMMA
 	: star_fpdef_COMMA fpdef opt_EQUAL_test COMMA
 	{
+          $$ = $1;
+          $$->push_back($2);
 	  printDebugMsg("star_fpdef_COMMA fpdef opt_EQUAL_test COMMA -> star_fpdef_COMMA");
         }
 	| %empty
         {
+          $$ = new std::vector<Node*>();
+          $$->reserve(4);
 	  printDebugMsg(" -> star_fpdef_COMMA");
         }
 	;
@@ -238,10 +257,13 @@ fpdef // Used in: varargslist, star_fpdef_COMMA, fplist, star_fpdef_notest
 	: NAME
         {
 	  printDebugMsg("NAME -> fpdef");
+          $$ = new IdentNode($1);
+          pool.add($$);
           deleteName($1);
         }
 	| LPAR fplist RPAR
         {
+          $$ = nullptr;
 	  printDebugMsg("LPAR fplist RPAR -> fpdef");
         }
 	;
@@ -792,7 +814,7 @@ plus_stmt // Used in: suite, plus_stmt
         {
           $$ = new SuiteNode();
           pool.add($$);
-          static_cast<SuiteNode*>($$)->insertStmt($1);
+          static_cast<SuiteNode*>($$)->insertStmt($1); // use cast because insertStmt() is not a virtual function
           printDebugMsg("stmt -> plus_stmt");
         }
 	;
@@ -1120,13 +1142,14 @@ power // Used in: factor
          {
            if (!($2->empty())) {
               std::string n = reinterpret_cast<IdentNode*>($1)->getIdent();
-              $$ = new CallNode(n);
+              $$ = new CallNode(n, $2);
               pool.add($$);
-            }
-            else
+           }
+           else {
               $$ = $1;
-	    delete $2;
-            printDebugMsg("atom star_trailer -> power");
+           }
+	   delete $2;
+           printDebugMsg("atom star_trailer -> power");
          }
 	;
 star_trailer // Used in: power, star_trailer
@@ -1206,7 +1229,7 @@ opt_yield_test // Used in: atom
 	    printDebugMsg("pick_yield_expr_testlist_comp -> opt_yield_test"); 
 	}
 	| %empty
-        { 
+        {
             $$ = nullptr;
 	    printDebugMsg(" -> opt_yield_test");
 	}
@@ -1246,6 +1269,7 @@ trailer // Used in: star_trailer
 	{
             $$ = new TrailerNode($2);
             pool.add($$);
+            delete $2;
 	    printDebugMsg("LPAR opt_arglist RPAR -> trailer");
 	}
 	| LSQB subscriptlist RSQB
@@ -1333,15 +1357,35 @@ opt_testlist // Used in: classdef
 	;
 arglist // Used in: opt_arglist
 	: star_argument_COMMA pick_argument
-        { $$ = nullptr; }
+        { 
+          $$ = $1;
+          $$->push_back($2);
+          printDebugMsg("star_argument_COMMA pick_argument -> arglist");
+        }
 	;
 star_argument_COMMA // Used in: arglist, star_argument_COMMA
 	: star_argument_COMMA argument COMMA
+        {
+          $$ = $1;
+          $$->push_back($2);
+          printDebugMsg("star_argument_COMMA argument COMMA -> star_argument_COMMA");
+        }
 	| %empty
+        {
+	  $$ = new std::vector<Node*>();
+	  $$->reserve(4);
+          printDebugMsg(" -> star_argument_COMMA");
+        }
 	;
 star_COMMA_argument // Used in: star_COMMA_argument, pick_argument
 	: star_COMMA_argument COMMA argument
+        {
+          printDebugMsg("star_COMMA_argument COMMA argument -> star_COMMA_argument");
+        }
 	| %empty
+        {
+          printDebugMsg(" -> star_COMMA_argument");
+        }
 	;
 opt_DOUBLESTAR_test // Used in: pick_argument
 	: COMMA DOUBLESTAR test
@@ -1349,16 +1393,41 @@ opt_DOUBLESTAR_test // Used in: pick_argument
 	;
 pick_argument // Used in: arglist
 	: argument opt_COMMA
+        {
+          $$ = $1;
+          printDebugMsg("argument opt_COMMA -> pick_argument");
+        }
 	| STAR test star_COMMA_argument opt_DOUBLESTAR_test
+        {
+          $$ = nullptr;
+          printDebugMsg("STAR test star_COMMA_argument opt_DOUBLESTAR_test -> pick_argument");
+        }
 	| DOUBLESTAR test
+        {
+          $$ = nullptr;
+          printDebugMsg("DOUBLESTAR test -> pick_argument");
+        }
 	;
 argument // Used in: star_argument_COMMA, star_COMMA_argument, pick_argument
 	: test opt_comp_for
+        {
+          $$ = $1;
+          printDebugMsg("test opt_comp_for -> argument");
+        }
 	| test EQUAL test
+        {
+          printDebugMsg("test EQUAL test -> argument");
+        }
 	;
 opt_comp_for // Used in: argument
 	: comp_for
+        {
+          printDebugMsg("comp_for -> opt_comp_for");
+        }
 	| %empty
+        {
+          printDebugMsg(" -> opt_comp_for");
+        }
 	;
 list_iter // Used in: list_for, list_if
 	: list_for
@@ -1378,7 +1447,13 @@ comp_iter // Used in: comp_for, comp_if
 	;
 comp_for // Used in: testlist_comp, pick_for_test_test, pick_for_test, opt_comp_for, comp_iter
 	: FOR exprlist IN or_test comp_iter
+        {
+          printDebugMsg("FOR exprlist IN or_test comp_iter -> comp_for");
+        }
 	| FOR exprlist IN or_test
+        {
+          printDebugMsg("FOR exprlist IN or_test -> comp_for");
+        }
 	;
 comp_if // Used in: comp_iter
 	: IF old_test comp_iter
@@ -1411,9 +1486,10 @@ void yyerror (const char *s)
 }
 
 void deleteName(char *name) {
-  if (name != nullptr)
+  if (name != nullptr) {
     delete [] name;
     name = nullptr;
+  }
 }
 
 void printDebugMsg(const char *msg) {

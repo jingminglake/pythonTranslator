@@ -257,10 +257,13 @@ class SuiteNode;
 
 class FuncDefNode : public Node {
 public:
+  FuncDefNode(const char* name, std::vector<Node*> parameter, Node* suiteNode);
   FuncDefNode(const char* name, Node* suiteNode);
   virtual const Literal* eval() const;
+  void evalParameter(std::vector<Node*>& actualParameter) const;
 private:
   std::string funcName;
+  std::vector<Node*> formalParameter;
   SuiteNode* node;
 };
 
@@ -279,26 +282,44 @@ private:
 
 class NewStmtNode : public Node {
 public:
- NewStmtNode(Node* n) : Node(), node(n) {}
+  NewStmtNode(Node* n) : Node(), node(n) {}
   virtual const Literal* eval() const;
 private:
   Node* node;
 };
 
+class TrailerNode : public Node {
+public:
+  TrailerNode(std::vector<Node*>* n) : Node() {
+    if(n)
+      node = *n;
+    std::cout << "----------TrailerNode----------------" << std::endl;
+  }
+  virtual const Literal* eval() const;
+  std::vector<Node*> getNode() const;
+private:
+  std::vector<Node*> node;
+};
+
 class CallNode : public Node {
 public:
-  CallNode(const std::string& name) : Node(), callObjectName(name) {
-  };
+  CallNode(const std::string& name, std::vector<Node*>* parameter) : Node(), callObjectName(name) {
+    std::vector<Node*>::iterator it = parameter->begin();
+    while ( it != parameter->end() ) {
+      actualParameters.push_back( static_cast<TrailerNode*>(*it) );
+      ++it;
+    }
+};
   virtual const Literal* eval() const;
-
 private:
   std::string callObjectName;
+  std::vector<TrailerNode*> actualParameters;
 };
 
 class IfNode : public Node {
 public:
- IfNode(Node* testNode, Node* suiteNode) : Node(), tNode(testNode), ifNode(static_cast<SuiteNode*>(suiteNode)), elseNode(nullptr){}
- IfNode(Node* testNode, Node* suiteNode_if, Node* suiteNode_else) : Node(), tNode(testNode), ifNode(static_cast<SuiteNode*>(suiteNode_if)), elseNode(static_cast<SuiteNode*>(suiteNode_else)){}
+  IfNode(Node* testNode, Node* suiteNode) : Node(), tNode(testNode), ifNode(static_cast<SuiteNode*>(suiteNode)), elseNode(nullptr){}
+  IfNode(Node* testNode, Node* suiteNode_if, Node* suiteNode_else) : Node(), tNode(testNode), ifNode(static_cast<SuiteNode*>(suiteNode_if)), elseNode(static_cast<SuiteNode*>(suiteNode_else)){}
   virtual const Literal* eval() const;
 private:
   Node* tNode;
@@ -316,18 +337,8 @@ private:
 
 class PrintNode : public Node {
 public:
- PrintNode(Node* n) : Node(), node(n) {}
+  PrintNode(Node* n) : Node(), node(n) {}
   virtual const Literal* eval() const;
 private:
   Node *node;
 };
-
-class TrailerNode : public Node {
-public:
-  TrailerNode(Node *n) : Node(), node(n) {
-  }
-  virtual const Literal* eval() const;
-private:
-  Node *node;
-};
-
