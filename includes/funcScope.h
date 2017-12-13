@@ -24,6 +24,7 @@ public:
   void removeEntry(const std::string& name);
   bool isLocalVariable(const std::string& name) const;
   bool isOnlyReadableGlobalVariable(const std::string& name);
+  bool isGlobalVariable(const std::string& name) const;
   const Node* getFuncDefNode(const std::string& funcName);
   FuncScope* getFuncScope(const std::string& name);
   void setParentFuncScope(FuncScope *parentFuncS);

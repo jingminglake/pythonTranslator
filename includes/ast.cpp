@@ -82,6 +82,9 @@ const Literal* PlusAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -101,6 +104,9 @@ const Literal* MinAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -120,6 +126,9 @@ const Literal* StarAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -142,6 +151,9 @@ const Literal* SlashAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -161,6 +173,9 @@ const Literal* DoubleSlashAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -180,6 +195,9 @@ const Literal* DoubleStarAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -199,6 +217,9 @@ const Literal* PercentAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -218,6 +239,9 @@ const Literal* LShiftAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -242,6 +266,9 @@ const Literal* RShiftAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -266,6 +293,9 @@ const Literal* AmperAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -290,6 +320,9 @@ const Literal* VBarAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
@@ -314,6 +347,9 @@ const Literal* CircumflexAsgBinaryNode::eval() const {
   }
   FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( !funcS->isLocalVariable(name) && !funcS->isGlobalVariable(name) ) {
+     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
+  }
   if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }

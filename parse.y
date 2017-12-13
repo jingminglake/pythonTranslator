@@ -78,7 +78,7 @@ start
 file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
         {
-           /* if ($1) {
+            if (!cmdlineMode && $1) {
                 auto it = $1->begin();
                 while (it != $1->end()) {
                     if ((*it)) {
@@ -94,7 +94,7 @@ file_input // Used in: start
                     }
                     ++it;
                 }
-            } */
+            } 
             delete $1;
             printDebugMsg("star_NEWLINE_stmt ENDMARKER -> file_input");
         }
@@ -107,7 +107,7 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
         }
 	| stmt
         {
-            //if (cmdlineMode) {
+            if (cmdlineMode) {
 	      try {
 		$1->eval();
 	      } catch (const std::string& msg) {
@@ -117,7 +117,7 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	      } catch (...) {
 		std::cout << "opps, something wrong happened!" << std::endl;
 	      }
-            //}
+            } 
 	    $$ = new NewStmtNode($1);
 	    pool.add($$);
             printDebugMsg("stmt -> pick_NEWLINE_stmt");

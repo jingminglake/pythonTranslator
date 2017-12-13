@@ -77,6 +77,10 @@ bool FuncScope::isLocalVariable(const std::string& name) const {
   return ( table->getValue(name) )? true : false;
 }
 
+bool FuncScope::isGlobalVariable(const std::string& name) const {
+  return (globalVars.count(name) > 0) ? true : false;
+}
+
 bool FuncScope::isOnlyReadableGlobalVariable(const std::string& name) {
   return ( globalVars.count(name) > 0 && !globalVars[name] ) ? true : false;
 }
