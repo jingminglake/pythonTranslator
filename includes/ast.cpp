@@ -99,14 +99,15 @@ const Literal* MinAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't minAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = *oldValue - *augVal;
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // copy to current scope
+  funcS->setEntry(name, res); // copy to current scope
   return res;
 }
 
@@ -117,14 +118,15 @@ const Literal* StarAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't starAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = (*oldValue) * (*augVal);
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -138,14 +140,15 @@ const Literal* SlashAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't slashAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = (*oldValue) / (*augVal);
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -156,14 +159,15 @@ const Literal* DoubleSlashAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't doubleSlashAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = (*oldValue).opDoubleDiv(*augVal);
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -174,14 +178,15 @@ const Literal* DoubleStarAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't doubleStarAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = oldValue->opPower(*augVal);
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -192,14 +197,15 @@ const Literal* PercentAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't percentAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = (*oldValue) % (*augVal);
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -210,11 +216,12 @@ const Literal* LShiftAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't LShiftAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = nullptr;
   try {
@@ -222,7 +229,7 @@ const Literal* LShiftAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -233,11 +240,12 @@ const Literal* RShiftAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't RShiftAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = nullptr;
   try {
@@ -245,7 +253,7 @@ const Literal* RShiftAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -256,11 +264,12 @@ const Literal* AmperAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't RShiftAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = nullptr;
   try {
@@ -268,7 +277,7 @@ const Literal* AmperAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -279,11 +288,12 @@ const Literal* VBarAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't VBarAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = nullptr;
   try {
@@ -291,7 +301,7 @@ const Literal* VBarAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -302,11 +312,12 @@ const Literal* CircumflexAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't CircumflexAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = nullptr;
   try {
@@ -314,7 +325,7 @@ const Literal* CircumflexAsgBinaryNode::eval() const {
   } catch (const std::string& msg) {
     std::cout << msg << std::endl;
   }
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
