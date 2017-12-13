@@ -360,3 +360,12 @@ private:
   FuncScope *funcS;
   const FuncDefNode *node;
 };
+
+
+class GlobalNode : public Node {
+public:
+  GlobalNode(const std::string var) : Node(), varName(var) {}
+  virtual const Literal* eval() const;
+private:
+  const std::string varName;
+};

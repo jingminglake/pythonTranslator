@@ -58,7 +58,7 @@
 %type<node> comparison not_test and_test or_test test pick_yield_expr_testlist
 %type<node> testlist star_EQUAL expr_stmt small_stmt simple_stmt
 %type<node> stmt print_stmt opt_test opt_yield_test pick_yield_expr_testlist_comp star_EQUAL_R
-%type<node> compound_stmt flow_stmt return_stmt
+%type<node> compound_stmt flow_stmt return_stmt global_stmt
 %type<node> plus_stmt funcdef if_stmt suite trailer
 %type<node> pick_NEWLINE_stmt argument pick_argument fpdef
 %type<nodes> star_trailer star_NEWLINE_stmt arglist opt_arglist star_argument_COMMA
@@ -78,7 +78,7 @@ start
 file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
         {
-            if ($1) {
+           /* if ($1) {
                 auto it = $1->begin();
                 while (it != $1->end()) {
                     if ((*it)) {
@@ -94,7 +94,7 @@ file_input // Used in: start
                     }
                     ++it;
                 }
-            }
+            } */
             delete $1;
             printDebugMsg("star_NEWLINE_stmt ENDMARKER -> file_input");
         }
@@ -107,7 +107,7 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
         }
 	| stmt
         {
-            if (cmdlineMode) {
+            //if (cmdlineMode) {
 	      try {
 		$1->eval();
 	      } catch (const std::string& msg) {
@@ -117,7 +117,7 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	      } catch (...) {
 		std::cout << "opps, something wrong happened!" << std::endl;
 	      }
-            }
+            //}
 	    $$ = new NewStmtNode($1);
 	    pool.add($$);
             printDebugMsg("stmt -> pick_NEWLINE_stmt");
@@ -350,7 +350,9 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	| import_stmt
         { $$ = nullptr; }
 	| global_stmt
-        { $$ = nullptr; }
+        { 
+          $$ = $1;
+        }
 	| exec_stmt
         { $$ = nullptr; }
 	| assert_stmt
@@ -700,6 +702,8 @@ dotted_name // Used in: decorator, pick_dotted_name, dotted_as_name, dotted_name
 global_stmt // Used in: small_stmt
 	: GLOBAL NAME star_COMMA_NAME
         {
+          $$ = new GlobalNode($2);
+          pool.add($$);
           deleteName($2);
         }
 	;

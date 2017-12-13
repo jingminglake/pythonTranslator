@@ -64,6 +64,9 @@ const Literal* AsgBinaryNode::eval() const {
     throw std::string("SyntaxError: can't assign to operator");
   }
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
+  if ( TableManager::getInstance().getCurrentFuncScope()->isOnlyReadableGlobalVariable(name) ) {
+    throw std::string("UnboundLocalError: local variable '") + name + std::string("' referenced before assignment");
+  }
   //std::cout << "AsgBinaryNode::eval() " << name << std::endl;
   const Literal* res = right->eval();
   TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // copy to current scope
@@ -77,14 +80,15 @@ const Literal* PlusAsgBinaryNode::eval() const {
   if (!dynamic_cast<IdentNode*>(left)) {
     throw  std::string("SyntaxError: can't plusAssign to operator");
   }
+  FuncScope *funcS = TableManager::getInstance().getCurrentFuncScope();
   const std::string name = static_cast<IdentNode*>(left)->getIdent();
-  if (!TableManager::getInstance().getCurrentFuncScope()->isLocalVariable(name)) {
+  if ( !funcS->isLocalVariable(name) && funcS->isOnlyReadableGlobalVariable(name) ) {
     throw std::string("UnboundLocalError: local variable '") +  name + std::string("' referenced before assignment");
   }
-  const Literal* oldValue = TableManager::getInstance().getCurrentFuncScope()->getEntry(name)->eval();
+  const Literal* oldValue = funcS->getEntry(name)->eval();
   const Literal* augVal = right->eval();
   const Literal* res = *oldValue + *augVal;
-  TableManager::getInstance().getCurrentFuncScope()->setEntry(name, res); // modify
+  funcS->setEntry(name, res); // modify
   return res;
 }
 
@@ -790,5 +794,11 @@ std::vector<Node*> TrailerNode::getNode() const {
 }
 
 const Literal* ReturnFuncNode::eval() const {
+  return nullptr;
+}
+
+const Literal* GlobalNode::eval() const {
+  //std::cout << "GlobalNode::eval() GlobalNode::eval() GlobalNode::eval()" << std::endl;
+  TableManager::getInstance().getCurrentFuncScope()->setGlobalVars(varName, true);
   return nullptr;
 }
