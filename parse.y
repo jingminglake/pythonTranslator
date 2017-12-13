@@ -544,7 +544,7 @@ print_stmt // Used in: small_stmt
 	: PRINT opt_test
         {
           $$ = $2;
-	  printDebugMsg("PRINT opt_test -> print_stmt"); 
+	  printDebugMsg("PRINT opt_test -> print_stmt");
         }
 	| PRINT RIGHTSHIFT test opt_test_2
         {
@@ -554,7 +554,13 @@ print_stmt // Used in: small_stmt
 	;
 star_COMMA_test // Used in: star_COMMA_test, opt_test, listmaker, testlist_comp, testlist, pick_for_test
 	: star_COMMA_test COMMA test
+	{
+          printDebugMsg("star_COMMA_test COMMA test -> star_COMMA_test");
+        }
 	| %empty
+	{
+          printDebugMsg(" -> star_COMMA_test");
+        }
 	;
 opt_test // Used in: print_stmt
 	: test star_COMMA_test opt_COMMA
@@ -738,11 +744,13 @@ if_stmt // Used in: compound_stmt
           {
             $$ = new IfNode($2, $4, $8);
             pool.add($$);
+            printDebugMsg("IF test COLON suite star_ELIF ELSE COLON suite -> if_stmt");
           }
 	| IF test COLON suite star_ELIF
           {
             $$ = new IfNode($2, $4);
             pool.add($$);
+            printDebugMsg("IF test COLON suite star_ELIF -> if_stmt");
           }
 	;
 star_ELIF // Used in: if_stmt, star_ELIF

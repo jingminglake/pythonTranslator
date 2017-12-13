@@ -15,6 +15,7 @@ class TableManager {
     void setReturnFlag(bool);
     void pushScope(const std::string& funcName);
     void popScope();
+    void setCurrentFuncScope(FuncScope *funcScope);
     FuncScope* getCurrentFuncScope();
  private:
     FuncScope* currentFuncScope;

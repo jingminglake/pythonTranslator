@@ -2,9 +2,8 @@ def f(x):
   print x
 
 def g():
-  print "g"
+  print 101
 
-f()
 f(1)
 g()
 

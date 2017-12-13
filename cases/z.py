@@ -1,2 +1,5 @@
 def f(x, y, z):
-  print 1
+  print x
+  print y
+  print z
+f(1, 2, 3)

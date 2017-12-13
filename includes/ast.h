@@ -260,7 +260,7 @@ public:
   FuncDefNode(const char* name, std::vector<Node*> parameter, Node* suiteNode);
   FuncDefNode(const char* name, Node* suiteNode);
   virtual const Literal* eval() const;
-  void evalParameter(std::vector<Node*>& actualParameter) const;
+  void evalParameter(std::vector<const Literal*>& actualParameter) const;
   const Literal* evalSuite() const;
 private:
   std::string funcName;
@@ -342,4 +342,21 @@ public:
   virtual const Literal* eval() const;
 private:
   Node *node;
+};
+
+class FuncScope;
+
+class ReturnFuncNode : public Node {
+public:
+ ReturnFuncNode(FuncScope *fs, const Node* n) : Node(), funcS(fs), node(static_cast<const FuncDefNode *>(n) ) {}
+  virtual const Literal* eval() const;
+  const FuncDefNode * getNode() const {
+    return node;
+  }
+  const FuncScope * getFuncScope() const {
+    return funcS;
+  }
+private:
+  FuncScope *funcS;
+  const FuncDefNode *node;
 };

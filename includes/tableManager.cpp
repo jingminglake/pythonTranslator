@@ -20,8 +20,12 @@ void TableManager::setReturnFlag(bool flag) {
 }
 
 void TableManager::pushScope(const std::string& funcName) {
-  if (funcName == currentFuncScope->getFuncName())  // recursion 
+  if (funcName == currentFuncScope->getFuncName()) { // recursion
+    funcCallStack.push(currentFuncScope);
+    currentFuncScope = new FuncScope(currentFuncScope);
+    PoolOfNodes::getInstance().addFuncScopeNode(currentFuncScope);
     return; // recursion need not change Scope
+  }
   funcCallStack.push(currentFuncScope);
   // check if it is predefined in the current scope
   if (currentFuncScope->isLocalVariable(funcName)) {
@@ -44,6 +48,13 @@ void TableManager::popScope() {
   if (!funcCallStack.empty()) {
     currentFuncScope = funcCallStack.top();
     funcCallStack.pop();
+  }
+}
+
+void TableManager::setCurrentFuncScope(FuncScope *funcScope) {
+  if (funcScope != currentFuncScope) {
+    funcCallStack.push(currentFuncScope);
+    currentFuncScope = funcScope;
   }
 }
 

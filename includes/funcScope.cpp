@@ -5,6 +5,13 @@
 #include "poolOfNodes.h"
 #include "ast.h"
 
+FuncScope::FuncScope(FuncScope* rhs) {
+  funcName = rhs->funcName;
+  //table = rhs.table;
+  parentFuncScope = rhs->parentFuncScope;
+  table = new SymbolTable();
+  funcs = rhs->funcs;
+}
 
 FuncScope::~FuncScope() {
     delete table;
@@ -31,6 +38,7 @@ void FuncScope::setEntry(const std::string& name, const Node* val) {
     PoolOfNodes::getInstance().addFuncScopeNode(newFuncS);
     //newFunc->setParentFuncScope(this);
     std::unordered_map<std::string, FuncScope*>::iterator it = funcs.find(name);
+    //std::cout << "funcs.find(name)----> before " << name << " in " << funcName << std::endl;
     if (it != funcs.end()) { // if it contains same name func, then should be override
       //delete it->second; // remove the old one
       it->second = newFuncS; // create a new one
